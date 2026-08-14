@@ -10,6 +10,7 @@
     /schedule  → 혼잡 회피 재정렬(경복궁 → 덕수궁 순서 변경) + savedCongestionPct
     /match     → 경복궁 대안 감성 쌍둥이 top-K
     /card      → 설득 카드(template 기반, LLM 없이)
+    /monitor/surge → 실시간 급증 SSE 스트림 개시(open 이벤트)
 
 seed DB 는 스크립트 실행 시 자동 주입된다(기존 동명 row 는 덮어씀).
 """
@@ -17,8 +18,9 @@ from __future__ import annotations
 import json
 import sqlite3
 import sys
-import urllib.request
 import urllib.error
+import urllib.parse
+import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -84,14 +86,48 @@ def seed_db() -> None:
     print(f"[seed] {len(SEED_PLACES)}개 명소 주입 완료 → {settings.DB_PATH}")
 
 
+def _url(path: str) -> str:
+    """URL 에 한글이 그대로 들어가면 urllib 이 ascii 인코딩에서 터진다(예: ?q=경복궁).
+    경로·쿼리 구분자는 남기고 비ASCII 만 퍼센트 인코딩한다."""
+    return BASE + urllib.parse.quote(path, safe="/?=&")
+
+
 def _req(method: str, path: str, body: dict | None = None):
-    url = BASE + path
+    url = _url(path)
     data = json.dumps(body).encode() if body else None
     headers = {"Content-Type": "application/json"}
     req = urllib.request.Request(url, data=data, headers=headers, method=method)
     try:
         with urllib.request.urlopen(req, timeout=30) as r:
             return json.loads(r.read())
+    except urllib.error.HTTPError as e:
+        return {"__http_error__": e.code, "detail": e.read().decode()[:300]}
+    except Exception as e:
+        return {"__error__": str(e)}
+
+
+def _sse_first_event(path: str, timeout: float = 8.0) -> dict:
+    """SSE 스트림에 붙어 **첫 이벤트 한 건만** 읽고 끊는다(무한 스트림이라 블로킹 방지).
+    /monitor/surge 는 연결 직후 open 이벤트를 보내므로 이걸로 개시 여부를 확인한다."""
+    req = urllib.request.Request(_url(path), headers={"Accept": "text/event-stream"})
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as r:
+            ctype = (r.headers.get("Content-Type") or "").split(";")[0]
+            if ctype != "text/event-stream":
+                return {"__error__": f"content-type={ctype!r} (expected text/event-stream)"}
+            event, data = None, None
+            for _ in range(20):                     # 첫 이벤트 블록(빈 줄)까지만
+                raw = r.readline()
+                if not raw:
+                    break
+                line = raw.decode().strip()
+                if line.startswith("event:"):
+                    event = line[6:].strip()
+                elif line.startswith("data:"):
+                    data = line[5:].strip()
+                elif not line and event:
+                    return {"event": event, "data": json.loads(data or "{}")}
+            return {"__error__": "SSE 이벤트를 받지 못했다"}
     except urllib.error.HTTPError as e:
         return {"__http_error__": e.code, "detail": e.read().decode()[:300]}
     except Exception as e:
@@ -184,6 +220,16 @@ def run_demo() -> bool:
     r2 = _req("GET", "/api/v1/reports?lat=37.5796&lng=126.9770")
     if _ok("/reports(POST+GET)", r) and _ok("/reports GET", r2):
         print(f"     제보 id={r.get('id')}  근방 제보={len(r2.get('reports',[]))}건")
+        passed += 1
+
+    # 10. /monitor/surge — 실시간 급증 SSE(모듈4). open 이벤트로 스트림 개시만 확인
+    #     (급증 알림 자체는 실제 혼잡이 임계를 넘어야 나오므로 시연 스모크 범위 밖)
+    total += 1
+    r = _sse_first_event("/api/v1/monitor/surge?stops=126508,126521&interval=5")
+    if _ok("/monitor/surge(SSE)", r) and r.get("event") == "open":
+        d = r.get("data", {})
+        print(f"     감시 {len(d.get('watching', []))}곳  주기={d.get('interval_sec')}s  "
+              f"임계={d.get('surge_level')}({d.get('surge_level_label')})")
         passed += 1
 
     print(f"\n{'='*50}")

@@ -129,6 +129,11 @@ CrowdMap 앱 모듈(`app/`)에 여백 화면들을 **별도 런처("여백")** �
 - `GET  /api/v1/places/offpeak/{content_id}` — 향후 12시간 중 **오프피크(저혼잡) 시간대** top3 + 타임라인.
 - `GET  /api/v1/places/disperse/{content_id}` — **미시적 분산**: 도보권(~0.9km) 더 한적한 대안.
 - `GET  /api/v1/resolve_now?lat=&lng=` — **실시간 현재 혼잡**(모듈4) — 코스 급증 감지·리스케줄 알림용.
+- `GET  /api/v1/monitor/surge?stops=&interval=&level=` — **실시간 급증 알림 스트림(SSE, 모듈4)**.
+  연결 하나로 코스 전 지점을 서버가 주기(기본 10초) 감시하고, 혼잡이 임계(기본 3=약간 붐빔)
+  **이상으로 바뀌는 순간에만** `surge`, 회복하면 `clear` 이벤트를 보낸다 — 앱이 stop 마다
+  `/resolve_now` 를 폴링할 필요가 없어진다. 변화가 없으면 `heartbeat` 만 흐른다.
+  `curl -N "http://127.0.0.1:8000/api/v1/monitor/surge?stops=126508,126521"`
 - `POST /api/v1/reports` / `GET /api/v1/reports` — **여행자 실시간 제보**(붐빔/한적/팁) 저장·조회(크라우드소싱 MVP).
 
 앱(홈 지도): 핀 혼잡도 색(히트맵) · 탭 카드의 `덜 붐비는 시간`(오프피크)·`근처 한적한 곳`(분산) ·
@@ -181,5 +186,7 @@ OpenAPI 활용: **TourAPI(한국관광공사)** = 소개글/좌표/카테고리 
 - FastAPI `TestClient` E2E — `/health`·`/match`·`/schedule`·`/card` 실제 응답(seed DB)
 
 ## 로드맵 (미구현/확장)
-- Phase 4 Android 3화면(Retrofit) + 모듈4 실시간 급증 스왑 — `router.resolve_now` 노출 완료, 앱은 `PlannerActivity.startSurgeMonitor()` 폴링으로 연동
+- Phase 4 Android 3화면(Retrofit) + 모듈4 실시간 급증 스왑 — 서버는 `/resolve_now` + 급증 감시
+  SSE(`/monitor/surge`) 까지 완료. 앱 `PlannerActivity.startSurgeMonitor()` 은 아직 90초 폴링이라
+  SSE 구독(OkHttp EventSource)으로 교체하면 배터리·API 호출이 함께 줄어든다.
 - 전국 예보 확장(한국관광 데이터랩 혼잡도), C++ 코사인 최적화, 실측 라우팅 API

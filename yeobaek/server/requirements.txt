@@ -4,6 +4,8 @@ uvicorn[standard]>=0.29
 pydantic>=2.6
 numpy>=1.26
 requests>=2.31
+# 실시간 급증 알림 SSE(모듈4, api/monitor.py). 없으면 StreamingResponse 폴백으로 동작한다.
+sse-starlette>=2.1
 # 선택: RAG LLM 재서술(결정 G). USE_LLM=1 일 때만 필요.
 anthropic>=0.40
 # 참고: C++ 엔진(yeobaek_engine.*.so)은 engine/CMakeLists.txt 로 빌드해

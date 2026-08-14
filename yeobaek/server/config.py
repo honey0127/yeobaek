@@ -45,6 +45,14 @@ class Settings:
     DEFAULT_RADIUS_KM: float = float(_get("YEOBAEK_RADIUS_KM", "5.0"))
     DEFAULT_TOP_K: int = int(_get("YEOBAEK_TOP_K", "3"))
 
+    # ── 실시간 급증 감시 SSE (모듈4, api/monitor.py) ──
+    # 알림 임계 레벨은 HIGH_CONGESTION_LEVEL(기본 3=약간 붐빔) 을 그대로 쓴다.
+    SURGE_INTERVAL_SEC: float = float(_get("YEOBAEK_SURGE_INTERVAL", "10"))
+    # 변화가 없을 때 하트비트를 보내는 간격(초) — 프록시 idle 타임아웃 방지.
+    SURGE_PING_SEC: float = float(_get("YEOBAEK_SURGE_PING", "25"))
+    # 연결 하나가 감시할 수 있는 최대 지점 수(코스 최대 stop 수와 동일하게 8).
+    SURGE_MAX_STOPS: int = int(_get("YEOBAEK_SURGE_MAX_STOPS", "8"))
+
     # ── RAG (결정 G) ──
     USE_LLM: bool = _get("YEOBAEK_USE_LLM", "0") not in ("", "0", "false", "False")
     ANTHROPIC_API_KEY: str = _get("ANTHROPIC_API_KEY")
