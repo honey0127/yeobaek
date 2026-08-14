@@ -118,6 +118,11 @@ dependencies {
 // 여백: Retrofit2 + Gson (FastAPI /schedule·/match·/card)
     implementation("com.squareup.retrofit2:retrofit:2.11.0")
     implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+// 여백: OkHttp SSE (모듈4 /monitor/surge 실시간 급증 구독).
+//   BOM 으로 Retrofit 이 끌어오는 okhttp 까지 같은 버전으로 정렬한다.
+    implementation(platform("com.squareup.okhttp3:okhttp-bom:4.12.0"))
+    implementation("com.squareup.okhttp3:okhttp")
+    implementation("com.squareup.okhttp3:okhttp-sse")
 
     // 여백 Compose 레이어 (기존 View/XML 화면과 공존, 슬레이트 틸 디자인 시스템)
     val composeBom = platform(libs.androidx.compose.bom)

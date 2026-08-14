@@ -154,6 +154,31 @@ data class ResolveNowResponse(
     @SerializedName("quiet_score") val quietScore: Int? = null,
 )
 
+// ── /api/v1/monitor/surge (실시간 급증 알림 SSE, 모듈4) ──
+// surge/clear 이벤트의 payload. 서버가 message 까지 완성해 주므로 앱은 그대로 배너에 쓴다.
+data class SurgeAlert(
+    @SerializedName("content_id") val contentId: Long,
+    val title: String,
+    val level: Int,
+    @SerializedName("level_label") val levelLabel: String? = null,
+    @SerializedName("quiet_score") val quietScore: Int? = null,
+    @SerializedName("prev_level") val prevLevel: Int? = null,
+    val message: String,
+    val at: Long = 0,
+)
+
+data class SurgeWatch(
+    @SerializedName("content_id") val contentId: Long,
+    val title: String,
+)
+
+// 연결 직후 1회 오는 open 이벤트 — 감시 대상·주기·임계값 확인용.
+data class SurgeOpen(
+    @SerializedName("interval_sec") val intervalSec: Double = 10.0,
+    @SerializedName("surge_level") val surgeLevel: Int = 3,
+    val watching: List<SurgeWatch> = emptyList(),
+)
+
 // ── /api/v1/reports (여행자 실시간 제보) ──
 data class ReportRequest(
     val kind: String,                 // busy | quiet | tip

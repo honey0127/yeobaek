@@ -5,17 +5,24 @@ import android.os.Bundle
 import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.crowdmap.R
 import com.example.crowdmap.yeobaek.data.Congestion
 import com.example.crowdmap.yeobaek.data.PlanStop
 import com.example.crowdmap.yeobaek.data.ScheduleResponse
+import com.example.crowdmap.yeobaek.data.SurgeAlert
+import com.example.crowdmap.yeobaek.data.SurgeEvent
+import com.example.crowdmap.yeobaek.data.SurgeStream
 import com.example.crowdmap.yeobaek.data.YeobaekClient
 import com.google.android.material.card.MaterialCardView
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
@@ -74,45 +81,99 @@ class PlannerActivity : AppCompatActivity() {
         startSurgeMonitor(plan)
     }
 
-    override fun onResume() {
-        super.onResume()
-        // 앱이 포그라운드로 돌아올 때 surgeJob 이 중단됐으면 재시작(생명주기 안전)
-    }
-
     override fun onDestroy() {
         surgeJob?.cancel()
         super.onDestroy()
     }
 
     /**
-     * 실시간 급증 감시(모듈4) — 서버 /resolve_now 폴링 기반.
-     * 코스 상의 장소를 90초마다 폴링해 급증 시 배너를 보인다.
-     * — 주기를 짧게 할수록 배터리·API 부하가 늘어 90s 가 균형점.
+     * 실시간 급증 감시(모듈4) — 서버 SSE(`/api/v1/monitor/surge`) 구독.
+     *
+     * 예전에는 stop 마다 `/resolve_now` 를 90초씩 폴링했는데, 주기를 줄이면 배터리·API
+     * 호출이 같이 늘고 늘리면 급증을 놓치는 문제가 있었다. 이제 감시 루프는 서버가 돌고
+     * 앱은 연결 하나만 유지한다 — 혼잡이 임계 이상으로 바뀌는 순간 surge, 회복하면 clear
+     * 이벤트가 온다(변화가 없으면 트래픽도 없다).
+     *
+     * `repeatOnLifecycle(STARTED)` 안에서 구독하므로 화면이 백그라운드로 가면 연결이
+     * 끊기고 돌아오면 자동으로 다시 붙는다(예전 onResume 재시작 TODO 를 대신한다).
      */
     private fun startSurgeMonitor(plan: ScheduleResponse) {
         val alert = findViewById<MaterialCardView>(R.id.planner_alert)
         val alertText = findViewById<TextView>(R.id.planner_alert_text)
-        surgeJob = lifecycleScope.launch {
-            while (isActive) {
-                var alerted = false
-                for (stop in plan.ordered) {
-                    val lat = stop.lat ?: continue
-                    val lng = stop.lng ?: continue
-                    val now = try {
-                        YeobaekClient.api.resolveNow(lat, lng)
-                    } catch (_: Exception) { null } ?: continue
-                    val lvl = now.level
-                    if (now.valid && lvl != null && lvl >= 3) {
-                        alertText.text =
-                            "⚠ ‘${stop.title}’ 지금 ${Congestion.label(lvl)} — 도착 시점을 늦추거나 대안을 눌러보세요"
-                        alert.visibility = View.VISIBLE
-                        alerted = true
-                        break   // 첫 급증 지점만 배너(배너는 유지)
-                    }
-                }
-                if (!alerted) alert.visibility = View.GONE
-                delay(90_000L)   // 90초 주기 폴링
+        val stopIds = plan.ordered.map { it.contentId }
+        if (stopIds.isEmpty()) return
+
+        // 지점별 활성 알림. 배너는 한 줄이라 코스 순서상 먼저 만나는 지점을 보여준다.
+        val active = LinkedHashMap<Long, SurgeAlert>()
+        val render = {
+            val first = plan.ordered.firstNotNullOfOrNull { active[it.contentId] }
+            if (first == null) {
+                alert.visibility = View.GONE
+            } else {
+                alertText.text = "⚠ ${first.message}"
+                alert.visibility = View.VISIBLE
             }
+        }
+
+        surgeJob = lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                active.clear()
+                render()
+                var unsupported = false
+                SurgeStream.subscribe(stopIds, intervalSec = 10, level = SURGE_LEVEL)
+                    .collect { ev ->
+                        when (ev) {
+                            is SurgeEvent.Surge -> {
+                                active[ev.alert.contentId] = ev.alert
+                                render()
+                            }
+                            is SurgeEvent.Clear -> {
+                                active.remove(ev.alert.contentId)
+                                render()
+                            }
+                            is SurgeEvent.Unsupported -> unsupported = true
+                            else -> Unit    // open·heartbeat 는 UI 에 영향 없음
+                        }
+                    }
+                // 스트림이 재시도 없이 끝나는 건 구버전 서버뿐 — 그때만 폴링으로 내려간다.
+                if (unsupported) pollSurge(plan, active, render)
+            }
+        }
+    }
+
+    /**
+     * 구버전 서버(`/monitor/surge` 없음) 폴백 — 기존 90초 폴링.
+     * SSE 를 못 쓰는 배포에서도 급증 배너 자체는 계속 동작하게 남겨둔다.
+     */
+    private suspend fun pollSurge(
+        plan: ScheduleResponse,
+        active: MutableMap<Long, SurgeAlert>,
+        render: () -> Unit,
+    ) = coroutineScope {
+        while (isActive) {
+            for (stop in plan.ordered) {
+                val lat = stop.lat
+                val lng = stop.lng
+                if (lat == null || lng == null) continue
+                val now = try {
+                    YeobaekClient.api.resolveNow(lat, lng)
+                } catch (_: Exception) { null } ?: continue
+                val lvl = now.level
+                if (now.valid && lvl != null && lvl >= SURGE_LEVEL) {
+                    active[stop.contentId] = SurgeAlert(
+                        contentId = stop.contentId,
+                        title = stop.title,
+                        level = lvl,
+                        levelLabel = Congestion.label(lvl),
+                        message = "‘${stop.title}’ 지금 ${Congestion.label(lvl)} — " +
+                            "도착 시점을 늦추거나 대안을 눌러보세요",
+                    )
+                } else {
+                    active.remove(stop.contentId)
+                }
+            }
+            render()
+            delay(90_000L)   // 90초 주기 폴링(폴백 경로에서만)
         }
     }
 
@@ -127,4 +188,9 @@ class PlannerActivity : AppCompatActivity() {
     }
 
     private fun round2(v: Double): String = String.format("%.2f", v)
+
+    companion object {
+        /** 알림 임계 혼잡 레벨(3=약간 붐빔). 서버 YEOBAEK_HIGH_LVL 기본값과 맞춘다. */
+        private const val SURGE_LEVEL = 3
+    }
 }

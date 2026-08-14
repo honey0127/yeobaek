@@ -99,7 +99,11 @@ CrowdMap 앱 모듈(`app/`)에 여백 화면들을 **별도 런처("여백")** �
 - 흐름: `홈`(지도·검색·어드혹) 또는 `코스 플래너`(지역구 라인업) → `/schedule`
   → `Planner`(타임라인 카드·혼잡 배지, 모드별 헤더, 고혼잡 "대안 보기" → `/match`) → `Alternatives`(감성 쌍둥이)
   → `Card`(`/card` 근거 + **원탭 스왑 → 재스케줄**)
-- 네트워킹: Retrofit2 + Gson + Coroutines(`lifecycleScope`), 디바운스 검색, 로딩/에러 처리.
+- **실시간 급증 배너(`PlannerActivity`)**: 코스를 진행하는 동안 `/monitor/surge` **SSE 를 구독**해
+  혼잡이 임계(3=약간 붐빔) 이상으로 바뀌는 순간 배너를 띄우고, 회복하면 자동으로 내린다.
+  `repeatOnLifecycle(STARTED)` 안에서 구독하므로 화면이 백그라운드로 가면 연결도 끊긴다.
+- 네트워킹: Retrofit2 + Gson + Coroutines(`lifecycleScope`), OkHttp SSE(급증 구독),
+  디바운스 검색, 로딩/에러 처리.
 - 실행: Android Studio 로 열고(Gradle sync) 실기기/에뮬레이터에서 "여백" 아이콘 실행.
   - `local.properties` 에 서버 IP: `SERVER_IP=192.168.x.x` (PC의 LAN IP). 포트는 `8000` 고정(`YeobaekClient.PORT`).
   - 서버는 폰에서 접근되게 바인딩: `uvicorn server.main:app --host 0.0.0.0 --port 8000`
@@ -186,7 +190,6 @@ OpenAPI 활용: **TourAPI(한국관광공사)** = 소개글/좌표/카테고리 
 - FastAPI `TestClient` E2E — `/health`·`/match`·`/schedule`·`/card` 실제 응답(seed DB)
 
 ## 로드맵 (미구현/확장)
-- Phase 4 Android 3화면(Retrofit) + 모듈4 실시간 급증 스왑 — 서버는 `/resolve_now` + 급증 감시
-  SSE(`/monitor/surge`) 까지 완료. 앱 `PlannerActivity.startSurgeMonitor()` 은 아직 90초 폴링이라
-  SSE 구독(OkHttp EventSource)으로 교체하면 배터리·API 호출이 함께 줄어든다.
+- Phase 4 Android 3화면(Retrofit) + 모듈4 실시간 급증 스왑 — 서버(`/resolve_now`,`/monitor/surge`)와
+  앱 SSE 구독까지 완료. 남은 확장은 Foreground Service 로 화면이 꺼진 뒤에도 감시·푸시하는 것.
 - 전국 예보 확장(한국관광 데이터랩 혼잡도), C++ 코사인 최적화, 실측 라우팅 API

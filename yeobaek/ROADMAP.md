@@ -20,7 +20,7 @@
 | 데이터 스크립트 | Phase 1 | 🟡 규격검증 완료 | KorService2 필드·파라미터 실측 정합 확인, 대량 수집 실행은 로컬 |
 | Android 화면 | Phase 4 | 🟡 코드 작성 | 홈(**지도+검색+2모드**)/플래너/대안/카드 + Retrofit, **Android Studio 빌드·기기 테스트 필요** |
 | 홈 지도(구글맵) + 코스 2모드 | Phase 4 | 🟡 코드 작성 | 풀스크린 지도·그린 마커·`자동최적화/내순서대로` 토글(`keep_order`) |
-| 모듈4 실시간 스왑 | 4-5 | 🟡 서버 완료 | 카드 원탭 스왑→재스케줄 + 급증 감시 SSE(`/monitor/surge`) 구현·검증, 앱은 아직 90초 폴링(SSE 전환 남음) |
+| 모듈4 실시간 스왑 | 4-5 | 🟡 코드 완료 | 카드 원탭 스왑→재스케줄 + 급증 감시 SSE(`/monitor/surge`) 서버·앱 양쪽 연동. 앱은 Android Studio 빌드 검증 남음 |
 | 통합·안정화·기능설명서 | Phase 5 | 🟡 일부 | 해시태그 매핑/README 착수, valgrind·시연 고정 미완 |
 
 ✅ 완료·검증  🟡 코드는 있으나 실데이터/실행 검증 남음  ⬜ 미착수
@@ -82,7 +82,12 @@
   감시 루프를 서버로 옮겨 연결 하나로 코스 전 지점을 주기(기본 10초) 확인하고, 임계 진입 시 `surge`·
   회복 시 `clear` 이벤트만 흘린다(변화 없으면 `heartbeat`). 외부 API 호출은 스레드풀로 내보내 이벤트
   루프를 막지 않고, `sse-starlette` 가 없으면 `StreamingResponse` 폴백으로 동작한다.
-- [ ] 앱 연동 전환 — `startSurgeMonitor()` 의 90초 폴링을 `/monitor/surge` SSE 구독(OkHttp EventSource)으로 교체.
+- [x] **앱 SSE 전환** — `PlannerActivity.startSurgeMonitor()` 가 90초 폴링 대신 `SurgeStream`
+  (OkHttp `EventSources`) 으로 `/monitor/surge` 를 구독한다. `repeatOnLifecycle(STARTED)` 로
+  화면이 보이는 동안만 연결하고, 끊기면 지수 백오프(5→60초)로 조용히 재연결한다.
+  서버가 4xx(엔드포인트 없음)면 기존 90초 폴링으로 자동 폴백해 구버전 배포에서도 배너는 동작한다.
+  검증: kotlinc 로 실제 okhttp/okhttp-sse/gson/coroutines jar 에 대해 타입 체크 + JVM 하니스로
+  실 서버에 붙여 open/surge/clear 파싱·4xx 폴백·재연결 백오프 확인(Android Studio 빌드는 별도 필요).
 - [ ] (확장) 자체 Foreground Service 로 화면이 꺼진 뒤에도 급증 감시·알림 푸시. (CrowdMap `TrackingCore` 는 레포에서 제거됨 — 필요 시 git 이력에서 참고: `git show fbd7cf1:app/src/main/java/com/example/crowdmap/core/TrackingCore.kt`)
 
 ### 🟡 P2 — 통합·안정화·심사 산출물 (Phase 5)
