@@ -12,6 +12,21 @@ primary_region = "nrt"   # 도쿄 — 한국에서 가장 가까운 Fly 리전(�
   auto_start_machines = true
   min_machines_running = 0
 
+  # 앱이 죽어 있으면 Fly 가 머신을 재시작한다(무응답 상태로 방치되지 않게).
+  [[http_service.checks]]
+    interval = "30s"
+    timeout = "5s"
+    grace_period = "20s"
+    method = "GET"
+    path = "/health"
+
+# 재배포에도 여행자 제보·예보 관측을 유지하려면 볼륨을 붙인다.
+# 볼륨을 먼저 만든 뒤(아래 3줄 주석 해제) 배포할 것 — 없는 볼륨을 참조하면 배포가 실패한다.
+#   flyctl volumes create yeobaek_data --size 1 --region nrt
+# [mounts]
+#   source = "yeobaek_data"
+#   destination = "/data"
+
 [[vm]]
   memory = "512mb"
   cpu_kind = "shared"

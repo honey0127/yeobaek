@@ -13,3 +13,6 @@ data/*.npz
 # 파이썬 환경
 .venv/
 venv/
+
+# 로컬 환경변수(API 키) — .env.example 만 커밋한다
+.env

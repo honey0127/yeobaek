@@ -1,0 +1,32 @@
+# 여백 서버 자체 호스팅(내 PC·집 서버·VPS) 구성.
+#
+#   cd yeobaek
+#   cp .env.example .env      # API 키 채우기(없어도 뜬다 — 중립값 폴백)
+#   docker compose up -d      # 백그라운드 상시 실행
+#
+# restart: unless-stopped 라서 PC 를 껐다 켜도 Docker 데몬이 뜨면 서버도 같이 뜬다
+# (= 터미널에서 uvicorn 을 매번 켤 필요가 없다). 상태 확인은 `docker compose ps`,
+# 로그는 `docker compose logs -f`, 중지는 `docker compose down`.
+services:
+  api:
+    build: .
+    image: yeobaek-api
+    container_name: yeobaek-api
+    restart: unless-stopped
+    ports:
+      - "${YEOBAEK_PORT:-8000}:8080"
+    env_file:
+      - path: .env
+        required: false
+    volumes:
+      # 제보·예보 관측이 컨테이너를 다시 만들어도 남는다.
+      - yeobaek-data:/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8080/health', timeout=4).status==200 else 1)"]
+      interval: 30s
+      timeout: 5s
+      start_period: 20s
+      retries: 3
+
+volumes:
+  yeobaek-data:
