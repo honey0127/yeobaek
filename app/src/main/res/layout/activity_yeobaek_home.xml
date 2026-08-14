@@ -147,6 +147,101 @@
         android:textStyle="bold"
         android:textSize="12sp" />
 
+    <!-- 한적한 곳만 보기 (혼잡 레벨 1~2 만 표시) -->
+    <com.google.android.material.chip.Chip
+        android:id="@+id/chip_quiet_only"
+        style="@style/Widget.Material3.Chip.Filter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|end"
+        android:layout_marginTop="124dp"
+        android:layout_marginEnd="16dp"
+        android:checkable="true"
+        android:text="한적한 곳만"
+        android:textSize="12sp" />
+
+    <!-- 혼잡 히트맵 범례 (하단 시트 위에 떠 있음) -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/heat_legend"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|start"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="136dp"
+        app:cardBackgroundColor="@color/ye_surface"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="0dp"
+        app:strokeColor="@color/ye_outline"
+        app:strokeWidth="1dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                android:text="지금 혼잡도"
+                android:textColor="@color/ye_on_surface_variant"
+                android:textSize="10sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <View
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:background="@drawable/ye_legend_dot"
+                    android:backgroundTint="@color/ye_lv1" />
+
+                <View
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:layout_marginStart="4dp"
+                    android:background="@drawable/ye_legend_dot"
+                    android:backgroundTint="@color/ye_lv2" />
+
+                <View
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:layout_marginStart="4dp"
+                    android:background="@drawable/ye_legend_dot"
+                    android:backgroundTint="@color/ye_lv3" />
+
+                <View
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:layout_marginStart="4dp"
+                    android:background="@drawable/ye_legend_dot"
+                    android:backgroundTint="@color/ye_lv4" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:text="여유 → 붐빔"
+                android:textColor="@color/ye_on_surface_variant"
+                android:textSize="10sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="회색 = 정보 없음"
+                android:textColor="@color/ye_on_surface_variant"
+                android:textSize="9sp" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
     <!-- 실시간 제보 버튼 (우하단, 시트 위) -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_report"

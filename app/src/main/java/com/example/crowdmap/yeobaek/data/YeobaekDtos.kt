@@ -231,4 +231,24 @@ object Congestion {
     fun hue(level: Int?): Float = when (level) {
         1 -> 140f; 2 -> 48f; 3 -> 25f; 4 -> 8f; else -> 153f
     }
+
+    /** 한적한 곳(여유·보통) 기준 — 지도 '한적한 곳만' 필터와 에코 포인트가 공유한다. */
+    const val QUIET_MAX_LEVEL = 2
+
+    fun isQuiet(level: Int?): Boolean = level != null && level <= QUIET_MAX_LEVEL
+
+    /**
+     * 히트맵 원의 채움색(ARGB) — 붐빌수록 진하게.
+     * 레벨을 모르면(예보권 밖·키 미설정) null — 모르는 곳을 '보통'처럼 칠하지 않는다.
+     */
+    fun heatFill(level: Int?): Int? {
+        if (level == null || level !in 1..4) return null
+        val alpha = when (level) { 1 -> 0x1F; 2 -> 0x33; 3 -> 0x4D; else -> 0x66 }
+        return (color(level) and 0x00FFFFFF) or (alpha shl 24)
+    }
+
+    /** 히트맵 원 반경(m) — 붐비는 곳이 더 넓게 번져 보이도록. */
+    fun heatRadiusM(level: Int): Double = when (level) {
+        1 -> 110.0; 2 -> 140.0; 3 -> 180.0; else -> 230.0
+    }
 }

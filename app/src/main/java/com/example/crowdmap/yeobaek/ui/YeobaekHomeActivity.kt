@@ -107,6 +107,9 @@ class YeobaekHomeActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var placeInfoBehavior: BottomSheetBehavior<View>
     private val reportMarkers = ArrayList<Marker>()
 
+    private var heat: HeatOverlay? = null   // 혼잡 농도 원(라벨 칩 아래에 깔린다)
+    private var quietOnly = false           // '한적한 곳만' 필터
+
     private val searchLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -194,6 +197,12 @@ class YeobaekHomeActivity : AppCompatActivity(), OnMapReadyCallback {
         updateStampChip()
         stampChip.setOnClickListener { openMyPage() }
 
+        // 한적한 곳만 보기 — 지도·추천 목록에 함께 적용된다.
+        findViewById<Chip>(R.id.chip_quiet_only).setOnCheckedChangeListener { _, checked ->
+            quietOnly = checked
+            refreshReco()
+        }
+
         val modeGroup = findViewById<MaterialButtonToggleGroup>(R.id.mode_group)
         modeGroup.check(R.id.btn_mode_auto)
         modeGroup.addOnButtonCheckedListener { _, checkedId, isChecked ->
@@ -215,6 +224,7 @@ class YeobaekHomeActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
+        heat = HeatOverlay(googleMap)
         runCatching {
             googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.ye_map_style))
         }
@@ -255,15 +265,19 @@ class YeobaekHomeActivity : AppCompatActivity(), OnMapReadyCallback {
             try {
                 // 히트맵: 주변 명소 + 현재 혼잡 레벨(핀 색) + 한적함 지수
                 val res = YeobaekClient.api.heatmap(center.latitude, center.longitude, radius)
-                val fresh = res.results.filter { !selectedStops.containsKey(it.contentId) }
+                val all = res.results.filter { !selectedStops.containsKey(it.contentId) }
+                // '한적한 곳만' — 레벨을 모르는 곳은 한적하다고 단정할 수 없으니 함께 감춘다.
+                val fresh = if (quietOnly) all.filter { Congestion.isQuiet(it.level) } else all
                 // 빈 지역에서 아무 표시도 없으면 고장처럼 보인다 — 왜 비었는지 알려준다.
-                recoHeader.text = if (fresh.isEmpty())
-                    "이 지역엔 등록된 명소가 없어요"
-                else
-                    "이 지역 추천 · 플래너에 넣을까요?"
+                recoHeader.text = when {
+                    fresh.isNotEmpty() -> "이 지역 추천 · 플래너에 넣을까요?"
+                    quietOnly && all.isNotEmpty() -> "이 지역엔 지금 한적한 곳이 없어요"
+                    else -> "이 지역엔 등록된 명소가 없어요"
+                }
                 recoAdapter.submit(fresh)
                 if (!isPlaceInfoShown()) recoPanel.visibility = View.VISIBLE
                 renderNearbyMarkers(fresh)
+                heat?.render(fresh)
                 loadReports()
             } catch (e: Exception) {
                 // 추천은 부가 기능 — 실패 시 조용히 숨김
@@ -439,6 +453,7 @@ class YeobaekHomeActivity : AppCompatActivity(), OnMapReadyCallback {
                 recoHeader.text = "🚶 ‘${place.title}’ 근처 더 한적한 곳"
                 recoAdapter.submit(fresh)
                 renderNearbyMarkers(fresh)
+                heat?.render(fresh)
                 hidePlaceInfo()
                 recoPanel.visibility = View.VISIBLE
             } catch (e: Exception) {

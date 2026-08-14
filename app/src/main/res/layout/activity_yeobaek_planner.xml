@@ -125,4 +125,15 @@
             android:textSize="13sp"
             app:cornerRadius="16dp" />
     </LinearLayout>
+
+    <!-- 화면을 꺼도 급증을 알려주는 백그라운드 감시 토글 -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/planner_notify"
+        style="@style/Widget.Material3.Button.TextButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginBottom="12dp"
+        android:text="🔔 화면 꺼도 알림 받기"
+        android:textSize="13sp" />
 </LinearLayout>

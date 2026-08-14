@@ -88,7 +88,12 @@
   서버가 4xx(엔드포인트 없음)면 기존 90초 폴링으로 자동 폴백해 구버전 배포에서도 배너는 동작한다.
   검증: kotlinc 로 실제 okhttp/okhttp-sse/gson/coroutines jar 에 대해 타입 체크 + JVM 하니스로
   실 서버에 붙여 open/surge/clear 파싱·4xx 폴백·재연결 백오프 확인(Android Studio 빌드는 별도 필요).
-- [ ] (확장) 자체 Foreground Service 로 화면이 꺼진 뒤에도 급증 감시·알림 푸시. (CrowdMap `TrackingCore` 는 레포에서 제거됨 — 필요 시 git 이력에서 참고: `git show fbd7cf1:app/src/main/java/com/example/crowdmap/core/TrackingCore.kt`)
+- [x] **화면이 꺼져도 급증 알림** — `service/SurgeMonitorService`(포그라운드 서비스). 플래너의
+  `🔔 화면 꺼도 알림 받기` 로 켜고, 상시 알림의 `감시 끄기` 로 끈다. 배경에서는 주기를 30초로
+  늘려 배터리를 아끼고, surge 면 알림을 띄우고 clear 면 그 장소 알림만 지운다.
+  API 33+ 알림 권한은 켜려는 시점에만 묻는다.
+  ⚠️ 출시 전: `FOREGROUND_SERVICE_DATA_SYNC` 는 Play Console 에 용도 선언이 필요하다
+  (앱 콘텐츠 → 포그라운드 서비스 권한). Android 15+ 는 dataSync 를 하루 6시간으로 제한한다.
 
 ### 🟡 P2 — 통합·안정화·심사 산출물 (Phase 5)
 - [x] **server 버그 수정**: `server/api/places.py` — `HTTPException` 누락 import 추가(`disperse`·`tats` 엔드포인트 정상화).

@@ -1,14 +1,19 @@
 package com.example.crowdmap.yeobaek.ui
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -27,6 +32,7 @@ import com.example.crowdmap.yeobaek.data.SurgeAlert
 import com.example.crowdmap.yeobaek.data.SurgeEvent
 import com.example.crowdmap.yeobaek.data.SurgeStream
 import com.example.crowdmap.yeobaek.data.YeobaekClient
+import com.example.crowdmap.yeobaek.service.SurgeMonitorService
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.snackbar.Snackbar
@@ -61,6 +67,19 @@ class PlannerActivity : AppCompatActivity() {
     private lateinit var recycler: RecyclerView
     private lateinit var recalcBtn: MaterialButton
     private lateinit var saveBtn: MaterialButton
+    private lateinit var notifyBtn: MaterialButton
+
+    // 알림 권한(API 33+)은 서비스를 켜려는 순간에만 묻는다 — 화면 진입부터 묻지 않는다.
+    private val notifyPermission = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) {
+            startBackgroundAlerts()
+        } else {
+            Toast.makeText(this, "알림 권한이 없어 백그라운드 알림을 켤 수 없어요",
+                Toast.LENGTH_LONG).show()
+        }
+    }
 
     private var startTime = ""
     private var keepOrder = false
@@ -84,6 +103,7 @@ class PlannerActivity : AppCompatActivity() {
         recycler = findViewById(R.id.planner_list)
         recalcBtn = findViewById(R.id.planner_recalc)
         saveBtn = findViewById(R.id.planner_save)
+        notifyBtn = findViewById(R.id.planner_notify)
         recycler.layoutManager = LinearLayoutManager(this)
 
         val planJson = intent.getStringExtra(Extras.PLAN_JSON)
@@ -97,6 +117,7 @@ class PlannerActivity : AppCompatActivity() {
             subText.text = ""
             recalcBtn.visibility = View.GONE
             saveBtn.visibility = View.GONE
+            notifyBtn.visibility = View.GONE
             return
         }
         PlanCache.save(this, plan)
@@ -107,8 +128,15 @@ class PlannerActivity : AppCompatActivity() {
 
         recalcBtn.setOnClickListener { recalculate() }
         saveBtn.setOnClickListener { saveCourse() }
+        notifyBtn.setOnClickListener { toggleBackgroundAlerts() }
 
         render(plan)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // 알림의 "감시 끄기"로 밖에서 껐을 수 있다.
+        updateNotifyButton()
     }
 
     override fun onDestroy() {
@@ -254,6 +282,43 @@ class PlannerActivity : AppCompatActivity() {
             }
             .setNegativeButton("취소", null)
             .show()
+    }
+
+    // ── 백그라운드 급증 알림(화면이 꺼져도) ───────────────────────────────────
+
+    private fun toggleBackgroundAlerts() {
+        if (SurgeMonitorService.running) {
+            SurgeMonitorService.stop(this)
+            updateNotifyButton()
+            return
+        }
+        // API 33+ 는 알림 권한이 없으면 알림이 조용히 사라진다 — 켜려는 시점에 묻는다.
+        val needsPermission = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) !=
+            PackageManager.PERMISSION_GRANTED
+        if (needsPermission) {
+            notifyPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+            return
+        }
+        startBackgroundAlerts()
+    }
+
+    private fun startBackgroundAlerts() {
+        val ids = adapter.items().map { it.contentId }
+        if (ids.isEmpty()) return
+        SurgeMonitorService.start(this, ids)
+        updateNotifyButton(forceOn = true)
+        Toast.makeText(this, "화면을 꺼도 ${ids.size}곳의 혼잡을 감시해요", Toast.LENGTH_SHORT).show()
+    }
+
+    /** @param forceOn 서비스가 막 시작돼 running 플래그가 아직 안 올라온 순간을 위한 낙관적 표시. */
+    private fun updateNotifyButton(forceOn: Boolean = false) {
+        if (!::notifyBtn.isInitialized) return
+        notifyBtn.text = if (forceOn || SurgeMonitorService.running) {
+            "🔔 백그라운드 감시 중 · 끄기"
+        } else {
+            "🔔 화면 꺼도 알림 받기"
+        }
     }
 
     // ── 실시간 급증 감시(모듈4) ───────────────────────────────────────────────

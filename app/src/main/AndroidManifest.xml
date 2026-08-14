@@ -4,11 +4,21 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
+    <!-- 화면이 꺼진 뒤에도 코스 혼잡 급증을 알리기 위한 권한(모듈4 백그라운드 감시).
+         사용자가 플래너에서 직접 켜야 시작되고, 상시 알림에서 언제든 끌 수 있다. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+
     <!--
-        ※ 권한은 여기 있는 2개가 전부여야 한다.
-           민감 권한(위치·백그라운드 등)이 병합되어 들어오면 Play 심사에서
+        ※ 권한은 여기 있는 5개가 전부여야 한다.
+           위치·백그라운드 위치 같은 민감 권한이 병합되어 들어오면 Play 심사에서
            정당화 서류를 요구하며 지연될 수 있다. 빌드 후
            app/build/outputs/logs/manifest-merger-release-report.txt 로 확인할 것.
+
+           FOREGROUND_SERVICE_DATA_SYNC 는 Play Console 에 **용도 선언**이 필요하다
+           (앱 콘텐츠 → 포그라운드 서비스 권한): "여행 코스를 진행하는 동안 서버의
+           실시간 혼잡 스트림을 구독해 급증 시 알림". 선언 없이 올리면 반려된다.
     -->
 
     <application
@@ -43,6 +53,12 @@
         <activity android:name=".yeobaek.ui.AlternativesActivity" android:exported="false" />
         <activity android:name=".yeobaek.ui.CardActivity" android:exported="false" />
         <activity android:name=".yeobaek.ui.MyPageActivity" android:exported="false" />
+
+        <!-- 화면이 꺼져도 급증을 알리는 포그라운드 서비스(모듈4). 앱 내부에서만 시작한다. -->
+        <service
+            android:name=".yeobaek.service.SurgeMonitorService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
 
         <!-- ── 여백 Compose 레이어(슬레이트 틸 리디자인) ── -->
         <!-- 기존 View 화면과 공존. LAUNCHER 는 위 YeobaekHomeActivity 하나만 유지하고,

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 히트맵 범례의 색 점. 색은 backgroundTint 로 레벨별로 지정한다. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <solid android:color="#FFFFFF" />
+    <size
+        android:width="10dp"
+        android:height="10dp" />
+</shape>
