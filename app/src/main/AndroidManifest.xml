@@ -42,6 +42,7 @@
         <activity android:name=".yeobaek.ui.PlannerActivity" android:exported="false" />
         <activity android:name=".yeobaek.ui.AlternativesActivity" android:exported="false" />
         <activity android:name=".yeobaek.ui.CardActivity" android:exported="false" />
+        <activity android:name=".yeobaek.ui.MyPageActivity" android:exported="false" />
 
         <!-- ── 여백 Compose 레이어(슬레이트 틸 리디자인) ── -->
         <!-- 기존 View 화면과 공존. LAUNCHER 는 위 YeobaekHomeActivity 하나만 유지하고,

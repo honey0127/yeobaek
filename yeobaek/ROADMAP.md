@@ -18,7 +18,7 @@
 | FastAPI 3 엔드포인트 | Phase 3 | ✅ 완료·검증 | TestClient E2E |
 | RAG 카드(템플릿+LLM) | 3-3 | 🟡 코드 완료 | 템플릿 검증 완료, LLM 경로는 키 필요 |
 | 데이터 스크립트 | Phase 1 | 🟡 규격검증 완료 | KorService2 필드·파라미터 실측 정합 확인, 대량 수집 실행은 로컬 |
-| Android 화면 | Phase 4 | 🟡 코드 작성 | 홈(**지도+검색+2모드**)/플래너/대안/카드 + Retrofit, **Android Studio 빌드·기기 테스트 필요** |
+| Android 화면 | Phase 4 | 🟡 코드 작성 | 홈(**지도+검색+2모드**)/플래너(**드래그 편집·코스 저장**)/대안/카드/**내 여백** + Retrofit, **Android Studio 빌드·기기 테스트 필요** |
 | 홈 지도(구글맵) + 코스 2모드 | Phase 4 | 🟡 코드 작성 | 풀스크린 지도·그린 마커·`자동최적화/내순서대로` 토글(`keep_order`) |
 | 모듈4 실시간 스왑 | 4-5 | 🟡 코드 완료 | 카드 원탭 스왑→재스케줄 + 급증 감시 SSE(`/monitor/surge`) 서버·앱 양쪽 연동. 앱은 Android Studio 빌드 검증 남음 |
 | 통합·안정화·기능설명서 | Phase 5 | 🟡 일부 | 해시태그 매핑/README 착수, valgrind·시연 고정 미완 |

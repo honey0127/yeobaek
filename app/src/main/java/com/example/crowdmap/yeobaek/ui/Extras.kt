@@ -7,6 +7,7 @@ object Extras {
     const val PLAN_JSON = "plan_json"    // String   — ScheduleResponse(JSON)
     const val KEEP_ORDER = "keep_order"  // Boolean  — true=내 순서대로, false=자동 최적화
     const val TARGET_ID = "target_id"    // Long     — 대안을 찾을 stop
+    const val COURSE_ID = "course_id"    // String   — 보관함에서 연 코스(저장 시 덮어쓰기 대상)
     const val SOURCE_ID = "source_id"    // Long
     const val ALT_ID = "alt_id"          // Long
     const val PLACE_ID = "place_id"      // Long   — SearchActivity 결과

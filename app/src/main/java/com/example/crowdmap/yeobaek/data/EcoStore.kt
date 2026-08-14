@@ -34,4 +34,18 @@ object EcoStore {
         points >= 50 -> "새싹 여행자"
         else -> "입문 여행자"
     }
+
+    /** 배지 승급 기준선(마이페이지 진행바용). */
+    private val TIERS = listOf(0, 50, 200, 500)
+
+    /** 다음 배지까지 필요한 누적 포인트. 최고 배지면 null. */
+    fun nextThreshold(points: Int): Int? = TIERS.firstOrNull { it > points }
+
+    /** 현재 배지 구간 안에서의 진행률(0~100). 최고 배지면 100. */
+    fun progressPct(points: Int): Int {
+        val next = nextThreshold(points) ?: return 100
+        val prev = TIERS.last { it <= points }
+        val span = next - prev
+        return if (span <= 0) 100 else ((points - prev) * 100 / span).coerceIn(0, 100)
+    }
 }

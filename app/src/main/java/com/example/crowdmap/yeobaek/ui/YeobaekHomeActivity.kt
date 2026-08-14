@@ -183,15 +183,16 @@ class YeobaekHomeActivity : AppCompatActivity(), OnMapReadyCallback {
         placeInfoBehavior.state = BottomSheetBehavior.STATE_HIDDEN   // 기본은 숨김
         findViewById<View>(R.id.info_close).setOnClickListener { hidePlaceInfo() }
 
-        // 에코 트래블러 배지 + 실시간 제보
+        // 에코 트래블러 배지 + 실시간 제보. 배지를 누르면 "내 여백"으로.
         ecoChip = findViewById(R.id.eco_chip)
         updateEcoChip()
+        ecoChip.setOnClickListener { openMyPage() }
         findViewById<MaterialButton>(R.id.btn_report).setOnClickListener { showReportDialog() }
 
-        // 여백 스탬프(모은 장소) — 누르면 모아보기
+        // 여백 스탬프(모은 장소) — 누르면 "내 여백"(스탬프·포인트·저장한 코스)
         stampChip = findViewById(R.id.stamp_chip)
         updateStampChip()
-        stampChip.setOnClickListener { showStampsDialog() }
+        stampChip.setOnClickListener { openMyPage() }
 
         val modeGroup = findViewById<MaterialButtonToggleGroup>(R.id.mode_group)
         modeGroup.check(R.id.btn_mode_auto)
@@ -455,19 +456,9 @@ class YeobaekHomeActivity : AppCompatActivity(), OnMapReadyCallback {
         stampChip.text = "旅 ${StampStore.count(this)}"
     }
 
-    /** 지금까지 모은 스탬프(장소) 모아보기. */
-    private fun showStampsDialog() {
-        val stamps = StampStore.all(this)
-        val body = if (stamps.isEmpty()) {
-            "아직 모은 스탬프가 없어요.\n지도에서 장소를 담으면 스탬프가 쌓여요."
-        } else {
-            stamps.joinToString("\n") { "旅 ${it.title}" }
-        }
-        AlertDialog.Builder(this)
-            .setTitle("여백 스탬프 (${stamps.size})")
-            .setMessage(body)
-            .setPositiveButton("닫기", null)
-            .show()
+    /** 내 여백 — 스탬프·에코 포인트·저장한 코스 모아보기(예전 스탬프 다이얼로그를 대체). */
+    private fun openMyPage() {
+        startActivity(Intent(this, MyPageActivity::class.java))
     }
 
     private fun awardEco(pts: Int) {
