@@ -76,6 +76,19 @@ jobs:
             echo "set=true" >> "$GITHUB_OUTPUT"
           fi
 
+      # data/*.db 와 data/*.npy 는 .gitignore 에 있다(스크립트로 재현하는 산출물).
+      # 그래서 CI 체크아웃에는 데이터가 없고, 여기서 만든 이미지는 명소 0건으로 뜬다.
+      # 배포를 막지는 않는다 — 볼륨을 붙여 쓰는 구성도 있으므로. 대신 크게 경고한다.
+      - name: 이미지에 데이터가 들어가는지 확인
+        if: steps.token.outputs.set == 'true'
+        working-directory: yeobaek
+        run: |
+          if [ ! -f data/yeobaek.db ] || [ ! -f data/embeddings.npy ]; then
+            echo "::warning::CI 체크아웃에는 data/yeobaek.db·embeddings.npy 가 없다(gitignore). \
+          이 배포로 만들어지는 이미지는 명소 0건이다. 볼륨을 붙이지 않았다면 데이터가 바뀔 때마다 \
+          내 PC에서 'flyctl deploy' 로 배포할 것. 자세한 내용은 yeobaek/DEPLOY.md 참고."
+          fi
+
       - uses: superfly/flyctl-actions/setup-flyctl@master
         if: steps.token.outputs.set == 'true'
 
