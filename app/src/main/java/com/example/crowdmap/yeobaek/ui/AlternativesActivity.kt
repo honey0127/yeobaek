@@ -14,6 +14,8 @@ import com.example.crowdmap.R
 import com.example.crowdmap.yeobaek.data.MatchRequest
 import com.example.crowdmap.yeobaek.data.Twin
 import com.example.crowdmap.yeobaek.data.YeobaekClient
+import com.example.crowdmap.yeobaek.ui.YeUi.applyInsets
+import com.example.crowdmap.yeobaek.ui.YeUi.edgeToEdge
 import kotlinx.coroutines.launch
 
 /**
@@ -32,7 +34,12 @@ class AlternativesActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        edgeToEdge()
         setContentView(R.layout.activity_yeobaek_alternatives)
+
+        findViewById<View>(R.id.alt_bar).applyInsets(top = true)
+        findViewById<View>(R.id.alt_list).applyInsets(bottom = true)
+        findViewById<View>(R.id.alt_back).setOnClickListener { finish() }
 
         targetId = intent.getLongExtra(Extras.TARGET_ID, 0)
         stops = intent.getLongArrayExtra(Extras.STOPS) ?: LongArray(0)
@@ -79,6 +86,6 @@ class AlternativesActivity : AppCompatActivity() {
     }
 
     private fun setLoading(loading: Boolean) {
-        progress.visibility = if (loading) View.VISIBLE else View.GONE
+        progress.visibility = if (loading) View.VISIBLE else View.INVISIBLE
     }
 }

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 정거장과 정거장을 잇는 세로선. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@color/ye_outline" />
+    <corners android:radius="1dp" />
+</shape>

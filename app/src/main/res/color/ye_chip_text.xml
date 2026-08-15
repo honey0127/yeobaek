@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 칩 글자색(상태별). 배경(ye_chip_bg)과 짝을 맞춰야 대비가 유지된다. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="@color/ye_on_surface_faint" android:state_enabled="false" />
+    <item android:color="@color/ye_on_primary_container" android:state_checked="true" />
+    <item android:color="@color/ye_on_surface" />
+</selector>

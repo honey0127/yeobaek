@@ -1,25 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- 대안 목록 — 붐비는 곳 대신 갈 만한 '감성 쌍둥이' top-K. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/alt_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/ye_background">
+    android:background="@color/ye_background"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/alt_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/ye_space_xs"
+        android:paddingTop="@dimen/ye_space_xs"
+        android:paddingEnd="@dimen/ye_gutter"
+        android:paddingBottom="@dimen/ye_space_xs">
+
+        <ImageButton
+            android:id="@+id/alt_back"
+            android:layout_width="@dimen/ye_touch_min"
+            android:layout_height="@dimen/ye_touch_min"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/ye_back"
+            android:padding="@dimen/ye_space_sm"
+            android:src="@drawable/ic_ye_arrow_back"
+            app:tint="@color/ye_on_surface" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/alt_header"
+        style="@style/Ye.Text.Headline"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="20dp"
-        android:text="대안"
-        style="@style/Ye.Title" />
+        android:paddingHorizontal="@dimen/ye_gutter"
+        android:paddingBottom="@dimen/ye_space_2xs"
+        tools:text="‘경복궁’ 대신 가볼 만한 곳" />
+
+    <TextView
+        style="@style/Ye.Text.BodySmall"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="@dimen/ye_gutter"
+        android:paddingBottom="@dimen/ye_space_sm"
+        android:text="같은 감성으로 묶인 곳 중, 그 시간에 덜 붐비는 순서예요" />
 
     <ProgressBar
         android:id="@+id/alt_progress"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="24dp"
-        android:visibility="gone" />
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+        android:indeterminate="true"
+        android:visibility="invisible"
+        tools:visibility="visible" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/alt_list"
@@ -27,5 +63,6 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:clipToPadding="false"
-        android:paddingBottom="16dp" />
+        android:paddingTop="@dimen/ye_space_xs"
+        android:paddingBottom="@dimen/ye_space_md" />
 </LinearLayout>

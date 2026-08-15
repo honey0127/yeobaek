@@ -1,5 +1,6 @@
 package com.example.crowdmap.yeobaek.data
 
+import com.example.crowdmap.R
 import com.google.gson.annotations.SerializedName
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -218,14 +219,48 @@ object Congestion {
     fun label(level: Int): String = when (level) {
         1 -> "여유"; 2 -> "보통"; 3 -> "약간 붐빔"; 4 -> "붐빔"; else -> "보통"
     }
-    /** 배지 배경 색상(ARGB) — 시맨틱 히트 스케일(여유→붐빔), 채도 낮춤(Compose 밀도 토큰과 통일). */
+
+    /** 레벨을 모를 때 쓰는 라벨 — '보통'으로 속이지 않는다. */
+    fun labelOrUnknown(level: Int?): String = if (level == null) "정보 없음" else label(level)
+
+    /**
+     * 배지 배경 색상(ARGB) — 시맨틱 히트 스케일(여유→붐빔), 채도를 낮춘 4단계.
+     *
+     * 지도 마커·히트맵 원처럼 **코드로 직접 그리는** 것에만 쓴다. 화면 위젯은
+     * [colorRes]/[containerRes] 를 써야 다크 테마에서도 색이 맞는다.
+     * 값은 res/values/ye_color.xml 의 ye_lv1~4 와 반드시 같아야 한다.
+     */
     fun color(level: Int): Int = when (level) {
-        1 -> 0xFF3F8266.toInt()  // 여유 · 세이지
-        2 -> 0xFFB4863F.toInt()  // 보통 · 앰버
-        3 -> 0xFFAF585A.toInt()  // 약간 붐빔 · 뮤트 크림슨
-        4 -> 0xFF93454A.toInt()  // 붐빔
-        else -> 0xFF8A929C.toInt()
+        1 -> 0xFF3E8C6A.toInt()  // 여유 · 세이지
+        2 -> 0xFFC08A3C.toInt()  // 보통 · 앰버
+        3 -> 0xFFB75F5B.toInt()  // 약간 붐빔 · 뮤트 크림슨
+        4 -> 0xFF8F4247.toInt()  // 붐빔
+        else -> 0xFF9AA7A9.toInt()
     }
+
+    /** 위젯용 레벨 색(테마 대응). 레벨이 없으면 중립 회색. */
+    @androidx.annotation.ColorRes
+    fun colorRes(level: Int?): Int = when (level) {
+        1 -> R.color.ye_lv1
+        2 -> R.color.ye_lv2
+        3 -> R.color.ye_lv3
+        4 -> R.color.ye_lv4
+        else -> R.color.ye_lv_unknown
+    }
+
+    /**
+     * 위젯용 레벨 **연한 배경**(테마 대응).
+     * 목록의 배지는 진한 색 채움보다 연한 컨테이너 + 진한 글자가 눈이 덜 피로하다.
+     */
+    @androidx.annotation.ColorRes
+    fun containerRes(level: Int?): Int = when (level) {
+        1 -> R.color.ye_lv1_container
+        2 -> R.color.ye_lv2_container
+        3 -> R.color.ye_lv3_container
+        4 -> R.color.ye_lv4_container
+        else -> R.color.ye_lv_unknown_container
+    }
+
     fun isHigh(level: Int): Boolean = level >= 3
     /** 구글맵 마커 색조(0~360). 여유=초록 … 붐빔=빨강. 레벨 없으면 브랜드 그린. */
     fun hue(level: Int?): Float = when (level) {

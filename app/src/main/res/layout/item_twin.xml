@@ -1,57 +1,83 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<!--
+  대안(감성 쌍둥이) 한 장.
+
+  유사도는 숫자만 적으면 감이 안 온다 — 막대로 함께 보여주면 후보끼리 비교가 된다.
+-->
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/Ye.Card"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginHorizontal="16dp"
-    android:layout_marginTop="12dp"
+    android:layout_marginHorizontal="@dimen/ye_gutter"
+    android:layout_marginBottom="@dimen/ye_space_xs"
     android:clickable="true"
-    android:focusable="true"
-    app:cardElevation="0dp"
-    app:cardBackgroundColor="@color/ye_surface"
-    app:strokeColor="@color/ye_outline"
-    app:strokeWidth="1dp"
-    app:cardCornerRadius="16dp">
+    android:focusable="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:padding="16dp">
+        android:orientation="vertical"
+        android:padding="@dimen/ye_space_md">
 
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
             <TextView
                 android:id="@+id/twin_title"
-                android:layout_width="wrap_content"
+                style="@style/Ye.Text.TitleSmall"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="대안 장소"
-                android:textColor="@color/ye_on_surface"
-                android:textSize="16sp" />
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:maxLines="2"
+                tools:text="창덕궁" />
 
             <TextView
-                android:id="@+id/twin_meta"
+                android:id="@+id/twin_badge"
+                style="@style/Ye.Badge"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="유사도 89% · 2.1km"
-                android:textColor="@color/ye_on_surface_variant"
-                android:textSize="12sp" />
+                android:layout_marginStart="@dimen/ye_space_xs"
+                tools:text="여유" />
         </LinearLayout>
 
         <TextView
-            android:id="@+id/twin_badge"
-            android:layout_width="wrap_content"
+            android:id="@+id/twin_meta"
+            style="@style/Ye.Text.BodySmall"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/ye_badge"
-            android:text="여유"
-            android:textColor="#FFFFFF"
-            android:textSize="12sp"
-            android:paddingHorizontal="12dp"
-            android:paddingVertical="5dp" />
+            android:layout_marginTop="@dimen/ye_space_2xs"
+            tools:text="감성 유사도 89% · 2.1km" />
+
+        <!-- 유사도 막대. 채움/빈칸을 weight 로 나눠 유사도 비율을 만든다
+             (코드에서 픽셀 폭을 계산하지 않아도 되고, 화면 폭이 달라도 비율이 유지된다). -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="6dp"
+            android:layout_marginTop="@dimen/ye_space_xs"
+            android:background="@drawable/ye_bg_bar_track"
+            android:orientation="horizontal"
+            android:weightSum="1">
+
+            <View
+                android:id="@+id/twin_bar"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.5"
+                android:background="@drawable/ye_bg_bar_fill"
+                android:backgroundTint="@color/ye_primary" />
+
+            <View
+                android:id="@+id/twin_bar_rest"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.5" />
+        </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

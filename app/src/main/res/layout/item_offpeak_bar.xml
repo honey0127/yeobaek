@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  오프피크 타임라인의 시간 막대 하나.
+
+  높이는 혼잡 레벨(1~4)에 비례하고 색도 레벨을 따른다 — 낮고 초록인 막대가
+  '지금 가면 좋은 시간'이다. 막대를 탭하면 그 시각이 출발 시각 후보가 된다.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/bar_root"
+    android:layout_width="40dp"
+    android:layout_height="wrap_content"
+    android:background="?attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:paddingVertical="@dimen/ye_space_2xs">
+
+    <!-- 선택 표시 점 -->
+    <View
+        android:id="@+id/bar_selected"
+        android:layout_width="6dp"
+        android:layout_height="6dp"
+        android:layout_marginBottom="@dimen/ye_space_2xs"
+        android:background="@drawable/ye_legend_dot"
+        android:backgroundTint="@color/ye_primary"
+        android:visibility="invisible" />
+
+    <!-- 막대 트랙(고정 높이) + 아래에서 자라는 채움 -->
+    <FrameLayout
+        android:layout_width="18dp"
+        android:layout_height="88dp">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/ye_bg_bar_track" />
+
+        <View
+            android:id="@+id/bar_fill"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:layout_gravity="bottom"
+            android:background="@drawable/ye_bg_bar_fill" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/bar_hour"
+        style="@style/Ye.Text.Caption"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/ye_space_2xs"
+        tools:text="14" />
+</LinearLayout>

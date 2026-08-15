@@ -16,7 +16,11 @@ import com.example.crowdmap.yeobaek.data.District
 import com.example.crowdmap.yeobaek.data.PlaceResult
 import com.example.crowdmap.yeobaek.data.ScheduleRequest
 import com.example.crowdmap.yeobaek.data.YeobaekClient
+import com.example.crowdmap.yeobaek.ui.YeUi.applyInsets
+import com.example.crowdmap.yeobaek.ui.YeUi.edgeToEdge
+import com.example.crowdmap.yeobaek.ui.YeUi.showIf
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -36,7 +40,8 @@ class DistrictActivity : AppCompatActivity() {
     private lateinit var lineupAdapter: LineupAdapter
     private lateinit var centerName: TextView
     private lateinit var descView: TextView
-    private lateinit var lineupProgress: ProgressBar
+    private lateinit var lineupSkeleton: View
+    private lateinit var lineupState: View
     private lateinit var lineupEmpty: TextView
     private lateinit var courseCount: TextView
     private lateinit var courseProgress: ProgressBar
@@ -66,11 +71,17 @@ class DistrictActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        edgeToEdge()
         setContentView(R.layout.activity_yeobaek_district)
+
+        findViewById<View>(R.id.district_bar).applyInsets(top = true)
+        findViewById<View>(R.id.district_actions).applyInsets(bottom = true)
+        findViewById<View>(R.id.district_back).setOnClickListener { finish() }
 
         centerName = findViewById(R.id.center_name)
         descView = findViewById(R.id.district_desc)
-        lineupProgress = findViewById(R.id.lineup_progress)
+        lineupSkeleton = findViewById(R.id.lineup_skeleton)
+        lineupState = findViewById(R.id.lineup_state)
         lineupEmpty = findViewById(R.id.lineup_empty)
         courseCount = findViewById(R.id.course_count)
         courseProgress = findViewById(R.id.course_progress)
@@ -142,7 +153,7 @@ class DistrictActivity : AppCompatActivity() {
 
     private fun loadLineup(lat: Double, lng: Double) {
         setLineupLoading(true)
-        lineupEmpty.visibility = View.GONE
+        lineupState.visibility = View.GONE
         lifecycleScope.launch {
             try {
                 // 주변 명소 + 현재 혼잡/한적함(핀 색과 동일한 소스)
@@ -151,7 +162,7 @@ class DistrictActivity : AppCompatActivity() {
                 if (places.isEmpty()) showEmpty(
                     "이 위치 반경 ${fmtRadius()} 안에 등록된 명소가 없어요.\n" +
                         "다른 위치를 고르거나, 홈 지도에서 직접 장소를 담아보세요."
-                ) else lineupEmpty.visibility = View.GONE
+                ) else lineupState.visibility = View.GONE
             } catch (e: Exception) {
                 lineupAdapter.submit(emptyList())
                 showEmpty(
@@ -167,12 +178,12 @@ class DistrictActivity : AppCompatActivity() {
 
     private fun showEmpty(msg: String) {
         lineupEmpty.text = msg
-        lineupEmpty.visibility = View.VISIBLE
+        lineupState.visibility = View.VISIBLE
     }
 
     private fun toggle(p: PlaceResult) {
-        if (selected.containsKey(p.contentId)) selected.remove(p.contentId)
-        else selected[p.contentId] = p
+        val removed = selected.remove(p.contentId) != null
+        if (!removed) selected[p.contentId] = p
         lineupAdapter.notifyDataSetChanged()
         updateCount()
     }
@@ -203,16 +214,17 @@ class DistrictActivity : AppCompatActivity() {
                         putExtra(Extras.KEEP_ORDER, true)
                     })
             } catch (e: Exception) {
-                Toast.makeText(this@DistrictActivity,
-                    "코스 생성 실패: ${e.message ?: "네트워크 오류"}", Toast.LENGTH_LONG).show()
+                Snackbar.make(makeButton,
+                    "코스 생성 실패: ${e.message ?: "네트워크 오류"}", Snackbar.LENGTH_LONG).show()
             } finally {
                 setCourseLoading(false)
             }
         }
     }
 
+    /** 로딩 중에는 올라올 카드 모양의 스켈레톤을 깔아 둔다(스피너 하나보다 덜 답답하다). */
     private fun setLineupLoading(loading: Boolean) {
-        lineupProgress.visibility = if (loading) View.VISIBLE else View.GONE
+        lineupSkeleton.showIf(loading)
     }
 
     private fun setCourseLoading(loading: Boolean) {

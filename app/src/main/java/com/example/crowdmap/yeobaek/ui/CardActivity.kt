@@ -16,6 +16,8 @@ import com.example.crowdmap.R
 import com.example.crowdmap.yeobaek.data.CardRequest
 import com.example.crowdmap.yeobaek.data.ScheduleRequest
 import com.example.crowdmap.yeobaek.data.YeobaekClient
+import com.example.crowdmap.yeobaek.ui.YeUi.applyInsets
+import com.example.crowdmap.yeobaek.ui.YeUi.edgeToEdge
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
@@ -42,7 +44,12 @@ class CardActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        edgeToEdge()
         setContentView(R.layout.activity_yeobaek_card)
+
+        findViewById<View>(R.id.card_bar).applyInsets(top = true)
+        findViewById<View>(R.id.card_actions).applyInsets(bottom = true)
+        findViewById<View>(R.id.card_back).setOnClickListener { finish() }
 
         sourceId = intent.getLongExtra(Extras.SOURCE_ID, 0)
         altId = intent.getLongExtra(Extras.ALT_ID, 0)
@@ -77,7 +84,7 @@ class CardActivity : AppCompatActivity() {
                 putExtra(Intent.EXTRA_STREAM, uri)
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }
-            startActivity(Intent.createChooser(send, "여백 카드 공유"))
+            startActivity(Intent.createChooser(send, getString(R.string.alt_share_image)))
         } catch (e: Exception) {
             Toast.makeText(this, "이미지 공유 실패: ${e.message ?: "알 수 없는 오류"}", Toast.LENGTH_SHORT).show()
         }
@@ -136,6 +143,6 @@ class CardActivity : AppCompatActivity() {
     }
 
     private fun setLoading(loading: Boolean) {
-        progress.visibility = if (loading) View.VISIBLE else View.GONE
+        progress.visibility = if (loading) View.VISIBLE else View.INVISIBLE
     }
 }

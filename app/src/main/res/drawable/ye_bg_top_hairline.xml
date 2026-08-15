@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 하단 고정 액션바 배경: 표면 + 위쪽 헤어라인 한 줄(그림자 대신). -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/ye_outline" />
+        </shape>
+    </item>
+    <item android:top="@dimen/ye_stroke">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/ye_surface" />
+        </shape>
+    </item>
+</layer-list>

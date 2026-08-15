@@ -1,60 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- 보관함 코스 한 장. 탭하면 그 시점 혼잡도로 다시 계산해서 연다. -->
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/Ye.Card"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="10dp"
+    android:layout_marginBottom="@dimen/ye_space_xs"
     android:clickable="true"
-    android:focusable="true"
-    app:cardBackgroundColor="@color/ye_surface"
-    app:cardCornerRadius="16dp"
-    app:cardElevation="0dp"
-    app:strokeColor="@color/ye_outline"
-    app:strokeWidth="1dp">
+    android:focusable="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:padding="16dp">
+        android:padding="@dimen/ye_space_md">
+
+        <ImageView
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:background="@drawable/ye_bg_circle_tint"
+            android:backgroundTint="@color/ye_primary_container"
+            android:importantForAccessibility="no"
+            android:padding="@dimen/ye_space_xs"
+            android:src="@drawable/ic_ye_route"
+            app:tint="@color/ye_on_primary_container" />
 
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/ye_space_sm"
             android:layout_weight="1"
             android:orientation="vertical">
 
             <TextView
                 android:id="@+id/course_name"
+                style="@style/Ye.Text.TitleSmall"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:text=""
-                android:textColor="@color/ye_on_surface"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                tools:text="경복궁 외 2곳" />
 
             <TextView
                 android:id="@+id/course_summary"
+                style="@style/Ye.Text.Caption"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="3dp"
-                android:text=""
-                android:textColor="@color/ye_on_surface_variant"
-                android:textSize="12sp" />
+                android:layout_marginTop="@dimen/ye_space_3xs"
+                tools:text="3곳 · 여백지수 82 · 8월 15일 14:00 저장" />
 
             <TextView
                 android:id="@+id/course_stops"
+                style="@style/Ye.Text.BodySmall"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
+                android:layout_marginTop="@dimen/ye_space_2xs"
                 android:ellipsize="end"
                 android:maxLines="2"
-                android:text=""
                 android:textColor="@color/ye_primary"
-                android:textSize="13sp" />
+                tools:text="경복궁 → 북촌한옥마을 → 창덕궁" />
         </LinearLayout>
 
         <ImageButton
@@ -62,8 +69,9 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="코스 삭제"
-            android:src="@android:drawable/ic_menu_delete"
-            app:tint="@color/ye_on_surface_variant" />
+            android:contentDescription="@string/my_course_delete_cd"
+            android:padding="@dimen/ye_space_xs"
+            android:src="@drawable/ic_ye_delete"
+            app:tint="@color/ye_on_surface_faint" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

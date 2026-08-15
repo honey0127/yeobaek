@@ -1,198 +1,255 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 홈: 네이버지도식 풀스크린 지도 + 떠 있는 검색바 + 접었다 펼 수 있는 하단 시트. -->
+<!--
+  홈 — 풀스크린 지도 + 상단 검색/필터 + 하단 코스 시트.
+
+  이전 버전은 지도 위 컨트롤(에코 칩·스탬프 칩·제보 버튼·필터 칩)을
+  layout_marginTop="78dp/116dp/124dp" 같은 상수로 하나씩 띄워 놓았다. 상태바 높이가
+  기기마다 달라 노치 기기에서 겹치고, 컨트롤이 사방에 흩어져 지도를 가렸다.
+
+  지금은 상단의 모든 컨트롤이 top_bar 하나에 세로로 쌓여 있고, 상태바 높이만큼의
+  여백은 YeobaekHomeActivity 가 YeUi.applyInsets 로 넣는다 — 상수 마진이 없다.
+-->
 <androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/home_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/ye_background">
 
-    <!-- 지도(구글맵, ye_map_style 로 그린 톤) -->
+    <!-- 지도(구글맵, ye_map_style 로 그린 톤 / 다크 모드는 야간 스타일) -->
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/map_fragment"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <!-- 상단 떠 있는 검색바 -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/search_bar"
+    <!-- ══ 상단 컨트롤 묶음 ══
+         상태바 인셋은 코드에서 이 뷰의 패딩으로 들어간다. -->
+    <LinearLayout
+        android:id="@+id/top_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="top"
-        android:layout_marginTop="16dp"
-        android:layout_marginHorizontal="16dp"
-        android:clickable="true"
-        android:focusable="true"
-        app:cardCornerRadius="28dp"
-        app:cardElevation="6dp"
-        app:cardBackgroundColor="@color/ye_surface">
+        android:orientation="vertical"
+        android:paddingTop="@dimen/ye_space_sm">
 
+        <!-- 검색 알약 + 내 여백 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:paddingHorizontal="20dp"
-            android:paddingVertical="15dp">
+            android:paddingHorizontal="@dimen/ye_gutter">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="🔍"
-                android:textSize="16sp"
-                android:layout_marginEnd="12dp" />
-
-            <TextView
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/search_bar"
+                style="@style/Ye.Card.Floating"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="어디를 둘러볼까요? 명소·장소 검색"
-                android:textColor="@color/ye_on_surface_variant"
-                android:textSize="15sp" />
+                android:clickable="true"
+                android:focusable="true"
+                android:contentDescription="@string/home_search_cd">
 
-            <TextView
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:minHeight="@dimen/ye_touch_min"
+                    android:paddingHorizontal="@dimen/ye_space_md">
+
+                    <ImageView
+                        android:layout_width="@dimen/ye_icon_md"
+                        android:layout_height="@dimen/ye_icon_md"
+                        android:importantForAccessibility="no"
+                        android:src="@drawable/ic_ye_search"
+                        app:tint="@color/ye_on_surface_variant" />
+
+                    <TextView
+                        style="@style/Ye.Text.Body"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="@dimen/ye_space_sm"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:text="@string/home_search_hint"
+                        android:textColor="@color/ye_on_surface_variant" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- 에코 포인트 = 내 여백 입구. 예전엔 포인트 칩과 스탬프 칩이 지도 위에
+                 따로 떠 있었는데, 둘 다 같은 화면으로 가므로 하나로 합쳤다. -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/eco_pill"
+                style="@style/Ye.Card.Floating"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="여백"
-                android:textColor="@color/ye_primary"
-                android:textStyle="bold"
-                android:textSize="15sp" />
+                android:layout_marginStart="@dimen/ye_space_xs"
+                android:clickable="true"
+                android:focusable="true"
+                android:contentDescription="@string/home_eco_cd">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:minWidth="@dimen/ye_touch_min"
+                    android:minHeight="@dimen/ye_touch_min"
+                    android:paddingHorizontal="@dimen/ye_space_sm">
+
+                    <ImageView
+                        android:layout_width="@dimen/ye_icon_md"
+                        android:layout_height="@dimen/ye_icon_md"
+                        android:importantForAccessibility="no"
+                        android:src="@drawable/ic_ye_eco"
+                        app:tint="@color/ye_eco" />
+
+                    <TextView
+                        android:id="@+id/eco_chip"
+                        style="@style/Ye.Text.LabelSmall"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/ye_space_2xs"
+                        android:textColor="@color/ye_on_surface"
+                        tools:text="120" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
 
-    <!-- 지역 추천: 지도를 옮기면 이 지역 명소를 추천, "플래너에 넣을까요?" -->
-    <LinearLayout
-        android:id="@+id/reco_panel"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="top"
-        android:layout_marginTop="86dp"
-        android:orientation="vertical"
-        android:visibility="gone"
-        tools:visibility="visible">
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:background="@drawable/ye_reco_header_bg"
-            android:paddingHorizontal="14dp"
-            android:paddingVertical="7dp">
-
-            <TextView
-                android:id="@+id/reco_header"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="이 지역 추천 · 플래너에 넣을까요?"
-                android:textColor="@color/ye_on_primary_container"
-                android:textStyle="bold"
-                android:textSize="13sp" />
-
-            <TextView
-                android:id="@+id/reco_close"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:padding="2dp"
-                android:text="✕"
-                android:textColor="@color/ye_on_primary_container"
-                android:textSize="13sp" />
-        </LinearLayout>
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/reco_list"
+        <!-- 지도 필터/액션 칩 줄 -->
+        <HorizontalScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="@dimen/ye_space_xs"
             android:clipToPadding="false"
-            android:paddingHorizontal="16dp"
-            android:orientation="horizontal"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+            android:paddingHorizontal="@dimen/ye_gutter"
+            android:scrollbars="none">
+
+            <com.google.android.material.chip.ChipGroup
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:chipSpacingHorizontal="@dimen/ye_space_xs"
+                app:singleLine="true">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_quiet_only"
+                    style="@style/Ye.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="@string/home_filter_quiet"
+                    app:checkedIconVisible="false"
+                    app:chipIcon="@drawable/ic_ye_eco"
+                    app:chipIconVisible="true" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_legend"
+                    style="@style/Ye.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:checked="true"
+                    android:text="@string/home_filter_legend"
+                    app:checkedIconVisible="false"
+                    app:chipIcon="@drawable/ic_ye_layers"
+                    app:chipIconVisible="true" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_report"
+                    style="@style/Ye.Chip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/home_action_report"
+                    app:chipIcon="@drawable/ic_ye_report"
+                    app:chipIconVisible="true" />
+            </com.google.android.material.chip.ChipGroup>
+        </HorizontalScrollView>
+
+        <!-- 이 지역 추천(지도를 옮기면 나타난다) -->
+        <LinearLayout
+            android:id="@+id/reco_panel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/ye_space_sm"
+            android:orientation="vertical"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/ye_gutter"
+                android:background="@drawable/ye_bg_pill_brand"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="@dimen/ye_space_sm"
+                android:paddingEnd="@dimen/ye_space_2xs">
+
+                <TextView
+                    android:id="@+id/reco_header"
+                    style="@style/Ye.Text.LabelSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/home_reco_default"
+                    android:textColor="@color/ye_on_primary_container" />
+
+                <ImageButton
+                    android:id="@+id/reco_close"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/home_reco_close_cd"
+                    android:padding="@dimen/ye_space_xs"
+                    android:src="@drawable/ic_ye_close"
+                    app:tint="@color/ye_on_primary_container" />
+            </LinearLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/reco_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/ye_space_xs"
+                android:clipToPadding="false"
+                android:orientation="horizontal"
+                android:paddingHorizontal="@dimen/ye_gutter"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+        </LinearLayout>
     </LinearLayout>
 
-
-    <!-- 에코 트래블러 배지 (좌상단 떠 있는 칩) -->
-    <TextView
-        android:id="@+id/eco_chip"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="top|start"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="78dp"
-        android:background="@drawable/ye_reco_header_bg"
-        android:paddingHorizontal="12dp"
-        android:paddingVertical="6dp"
-        android:text="🌱 0"
-        android:textColor="@color/ye_on_primary_container"
-        android:textStyle="bold"
-        android:textSize="12sp" />
-
-    <!-- 여백 스탬프(모은 장소 수) — 누르면 모아보기 -->
-    <TextView
-        android:id="@+id/stamp_chip"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="top|start"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="116dp"
-        android:background="@drawable/ye_reco_header_bg"
-        android:paddingHorizontal="12dp"
-        android:paddingVertical="6dp"
-        android:text="旅 0"
-        android:textColor="@color/ye_on_primary_container"
-        android:textStyle="bold"
-        android:textSize="12sp" />
-
-    <!-- 한적한 곳만 보기 (혼잡 레벨 1~2 만 표시) -->
-    <com.google.android.material.chip.Chip
-        android:id="@+id/chip_quiet_only"
-        style="@style/Widget.Material3.Chip.Filter"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="top|end"
-        android:layout_marginTop="124dp"
-        android:layout_marginEnd="16dp"
-        android:checkable="true"
-        android:text="한적한 곳만"
-        android:textSize="12sp" />
-
-    <!-- 혼잡 히트맵 범례 (하단 시트 위에 떠 있음) -->
+    <!-- ══ 혼잡 범례 — 접힌 시트 바로 위 ══ -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/heat_legend"
+        style="@style/Ye.Card"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|start"
-        android:layout_marginStart="16dp"
-        android:layout_marginBottom="136dp"
-        app:cardBackgroundColor="@color/ye_surface"
-        app:cardCornerRadius="12dp"
-        app:cardElevation="0dp"
-        app:strokeColor="@color/ye_outline"
-        app:strokeWidth="1dp">
+        android:layout_marginStart="@dimen/ye_gutter"
+        android:layout_marginBottom="@dimen/ye_map_overlay_bottom"
+        app:cardCornerRadius="@dimen/ye_radius_xs">
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingHorizontal="10dp"
-            android:paddingVertical="8dp">
+            android:paddingHorizontal="@dimen/ye_space_sm"
+            android:paddingVertical="@dimen/ye_space_xs">
 
             <TextView
+                style="@style/Ye.Text.Caption"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="4dp"
-                android:text="지금 혼잡도"
-                android:textColor="@color/ye_on_surface_variant"
-                android:textSize="10sp"
-                android:textStyle="bold" />
+                android:text="@string/home_legend_title"
+                android:textColor="@color/ye_on_surface_variant" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/ye_space_2xs"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
@@ -205,92 +262,91 @@
                 <View
                     android:layout_width="10dp"
                     android:layout_height="10dp"
-                    android:layout_marginStart="4dp"
+                    android:layout_marginStart="@dimen/ye_space_2xs"
                     android:background="@drawable/ye_legend_dot"
                     android:backgroundTint="@color/ye_lv2" />
 
                 <View
                     android:layout_width="10dp"
                     android:layout_height="10dp"
-                    android:layout_marginStart="4dp"
+                    android:layout_marginStart="@dimen/ye_space_2xs"
                     android:background="@drawable/ye_legend_dot"
                     android:backgroundTint="@color/ye_lv3" />
 
                 <View
                     android:layout_width="10dp"
                     android:layout_height="10dp"
-                    android:layout_marginStart="4dp"
+                    android:layout_marginStart="@dimen/ye_space_2xs"
                     android:background="@drawable/ye_legend_dot"
                     android:backgroundTint="@color/ye_lv4" />
             </LinearLayout>
 
             <TextView
+                style="@style/Ye.Text.Caption"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="3dp"
-                android:text="여유 → 붐빔"
-                android:textColor="@color/ye_on_surface_variant"
-                android:textSize="10sp" />
+                android:layout_marginTop="@dimen/ye_space_3xs"
+                android:text="@string/home_legend_scale" />
 
             <TextView
+                style="@style/Ye.Text.Caption"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:text="회색 = 정보 없음"
-                android:textColor="@color/ye_on_surface_variant"
-                android:textSize="9sp" />
+                android:text="@string/home_legend_unknown" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- 실시간 제보 버튼 (우하단, 시트 위) -->
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btn_report"
-        style="@style/Widget.Material3.Button.TonalButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="top|end"
-        android:layout_marginTop="72dp"
-        android:layout_marginEnd="16dp"
-        android:text="📣 제보"
-        android:textSize="13sp"
-        app:cornerRadius="20dp" />
-
-    <!-- 하단 시트(드래그로 접고 펼침): 손잡이 + 요약/CTA(접힘) + 상세(펼침) -->
+    <!-- ══ 코스 시트 ══ -->
     <LinearLayout
         android:id="@+id/bottom_sheet"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:background="@drawable/ye_sheet_bg"
-        android:elevation="12dp"
-        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
-        app:behavior_peekHeight="128dp"
+        android:elevation="@dimen/ye_elev_sheet"
+        android:orientation="vertical"
+        app:behavior_draggable="true"
         app:behavior_hideable="false"
-        app:behavior_draggable="true">
+        app:behavior_peekHeight="@dimen/ye_sheet_peek"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
-        <!-- 손잡이: 탭해도 접힘/펼침 토글 -->
         <FrameLayout
             android:id="@+id/sheet_handle_area"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="10dp"
-            android:paddingBottom="8dp">
+            android:contentDescription="@string/home_sheet_handle_cd"
+            android:paddingTop="@dimen/ye_space_sm"
+            android:paddingBottom="@dimen/ye_space_xs">
 
             <View
-                android:layout_width="40dp"
-                android:layout_height="5dp"
+                android:layout_width="36dp"
+                android:layout_height="4dp"
                 android:layout_gravity="center_horizontal"
                 android:background="@drawable/ye_handle" />
         </FrameLayout>
 
-        <!-- 접힌 상태에서 보이는 요약 + 코스 만들기 -->
+        <!-- 접힘 상태에서 보이는 줄: 담은 개수 + 요약 + CTA.
+             이 줄 높이 + 손잡이 높이 + 내비바 높이가 곧 시트의 peek 높이다(코드에서 계산). -->
         <LinearLayout
+            android:id="@+id/sheet_collapsed_row"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:paddingHorizontal="20dp"
-            android:paddingBottom="10dp">
+            android:orientation="horizontal"
+            android:paddingHorizontal="@dimen/ye_gutter"
+            android:paddingBottom="@dimen/ye_space_md">
+
+            <TextView
+                android:id="@+id/sheet_count"
+                style="@style/Ye.Text.Label"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginEnd="@dimen/ye_space_sm"
+                android:background="@drawable/ye_bg_circle_tint"
+                android:backgroundTint="@color/ye_primary_container"
+                android:gravity="center"
+                android:importantForAccessibility="no"
+                android:text="0"
+                android:textColor="@color/ye_on_primary_container" />
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -300,318 +356,352 @@
 
                 <TextView
                     android:id="@+id/sheet_summary"
+                    style="@style/Ye.Text.TitleSmall"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="담은 장소 0곳"
-                    android:textColor="@color/ye_on_surface"
-                    android:textSize="15sp"
-                    android:textStyle="bold" />
+                    android:text="@string/home_sheet_empty_title" />
 
                 <TextView
                     android:id="@+id/sheet_summary_sub"
+                    style="@style/Ye.Text.BodySmall"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:maxLines="1"
+                    android:layout_marginTop="@dimen/ye_space_3xs"
                     android:ellipsize="end"
-                    android:text="위로 올리면 날짜·시간과 코스 방식을 정할 수 있어요"
-                    android:textColor="@color/ye_on_surface_variant"
-                    android:textSize="12sp" />
+                    android:maxLines="1"
+                    android:text="@string/home_sheet_empty_sub" />
             </LinearLayout>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_plan"
+                style="@style/Ye.Button"
                 android:layout_width="wrap_content"
-                android:layout_height="48dp"
-                android:layout_marginStart="12dp"
+                android:layout_height="@dimen/ye_button_h"
+                android:layout_marginStart="@dimen/ye_space_sm"
                 android:minWidth="0dp"
-                android:paddingHorizontal="20dp"
-                android:text="코스 만들기"
-                android:textSize="15sp"
-                app:cornerRadius="16dp" />
+                android:paddingHorizontal="@dimen/ye_space_md"
+                android:text="@string/home_plan"
+                app:icon="@drawable/ic_ye_route" />
         </LinearLayout>
 
-        <!-- 펼쳤을 때 보이는 상세 설정(길면 스크롤) -->
+        <!-- 펼쳤을 때: 출발 시각 · 담은 장소 · 코스 방식 -->
         <androidx.core.widget.NestedScrollView
+            android:id="@+id/sheet_scroll"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingHorizontal="20dp"
-            android:paddingBottom="22dp"
-            android:clipToPadding="false">
+            android:clipToPadding="false"
+            android:paddingHorizontal="@dimen/ye_gutter"
+            android:paddingBottom="@dimen/ye_space_xl">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-        <!-- 위치 기준 코스 플래너 -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_district"
-            style="@style/Widget.Material3.Button.TonalButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="14dp"
-            android:text="📍  이 위치 기준으로 코스 짜기"
-            android:textSize="15sp"
-            app:cornerRadius="16dp" />
-
-        <!-- 날짜 / 시간 -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/til_date"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                android:layout_width="0dp"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                app:boxCornerRadiusTopStart="14dp"
-                app:boxCornerRadiusTopEnd="14dp"
-                app:boxCornerRadiusBottomStart="14dp"
-                app:boxCornerRadiusBottomEnd="14dp"
-                android:hint="날짜">
+                android:orientation="vertical">
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/input_date"
+                <TextView
+                    style="@style/Ye.Text.Section"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/home_when" />
+
+                <!-- 날짜 · 시각: 입력창이 아니라 '눌러서 고르는 값'이라 필드처럼 보이게 -->
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:focusable="false"
-                    android:clickable="true"
-                    android:inputType="none" />
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:layout_marginTop="@dimen/ye_space_xs"
+                    android:orientation="horizontal">
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/til_time"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="10dp"
-                app:boxCornerRadiusTopStart="14dp"
-                app:boxCornerRadiusTopEnd="14dp"
-                app:boxCornerRadiusBottomStart="14dp"
-                app:boxCornerRadiusBottomEnd="14dp"
-                android:hint="출발 시각">
+                    <LinearLayout
+                        android:id="@+id/field_date"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@drawable/ye_bg_field"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center_vertical"
+                        android:minHeight="@dimen/ye_touch_min"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="@dimen/ye_space_sm">
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/input_time"
+                        <ImageView
+                            android:layout_width="@dimen/ye_icon_md"
+                            android:layout_height="@dimen/ye_icon_md"
+                            android:importantForAccessibility="no"
+                            android:src="@drawable/ic_ye_calendar"
+                            app:tint="@color/ye_on_surface_variant" />
+
+                        <TextView
+                            android:id="@+id/input_date"
+                            style="@style/Ye.Text.Label"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="@dimen/ye_space_xs"
+                            android:ellipsize="end"
+                            android:maxLines="1"
+                            tools:text="8월 15일 (금)" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/field_time"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="@dimen/ye_space_xs"
+                        android:background="@drawable/ye_bg_field"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center_vertical"
+                        android:minHeight="@dimen/ye_touch_min"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="@dimen/ye_space_sm">
+
+                        <ImageView
+                            android:layout_width="@dimen/ye_icon_md"
+                            android:layout_height="@dimen/ye_icon_md"
+                            android:importantForAccessibility="no"
+                            android:src="@drawable/ic_ye_clock"
+                            app:tint="@color/ye_on_surface_variant" />
+
+                        <TextView
+                            android:id="@+id/input_time"
+                            style="@style/Ye.Text.Label"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="@dimen/ye_space_xs"
+                            android:ellipsize="end"
+                            android:maxLines="1"
+                            tools:text="14:00" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <TextView
+                    style="@style/Ye.Text.Section"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/ye_space_lg"
+                    android:text="@string/home_stops_label" />
+
+                <TextView
+                    android:id="@+id/stops_empty"
+                    style="@style/Ye.Text.BodySmall"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:focusable="false"
-                    android:clickable="true"
-                    android:inputType="none" />
-            </com.google.android.material.textfield.TextInputLayout>
-        </LinearLayout>
+                    android:layout_marginTop="@dimen/ye_space_2xs"
+                    android:text="@string/home_stops_empty" />
 
-        <!-- 선택한 장소 -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="14dp"
-            android:text="선택한 장소"
-            style="@style/Ye.Section" />
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/chip_group"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/ye_space_xs"
+                    app:chipSpacingVertical="@dimen/ye_space_3xs" />
 
-        <TextView
-            android:id="@+id/stops_empty"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="검색바에서 방문할 장소를 담아보세요"
-            android:textColor="@color/ye_on_surface_variant"
-            android:textSize="13sp" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_add_place"
+                    style="@style/Ye.Button.Text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/ye_space_2xs"
+                    android:paddingHorizontal="@dimen/ye_space_xs"
+                    android:text="@string/home_add_place"
+                    app:icon="@drawable/ic_ye_add" />
 
-        <com.google.android.material.chip.ChipGroup
-            android:id="@+id/chip_group"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            app:chipSpacingVertical="2dp" />
+                <TextView
+                    style="@style/Ye.Text.Section"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/ye_space_md"
+                    android:text="@string/home_mode_label" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_add_place"
-            style="@style/Widget.Material3.Button.TextButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:paddingHorizontal="4dp"
-            android:text="＋ 장소 추가" />
+                <com.google.android.material.button.MaterialButtonToggleGroup
+                    android:id="@+id/mode_group"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/ye_space_xs"
+                    app:selectionRequired="true"
+                    app:singleSelection="true">
 
-        <!-- 모드: 자동 최적화 / 내 순서대로 -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:text="코스 방식"
-            style="@style/Ye.Section" />
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_mode_auto"
+                        style="@style/Ye.Button.Outlined"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/home_mode_auto" />
 
-        <com.google.android.material.button.MaterialButtonToggleGroup
-            android:id="@+id/mode_group"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            app:singleSelection="true"
-            app:selectionRequired="true">
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_mode_keep"
+                        style="@style/Ye.Button.Outlined"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/home_mode_keep" />
+                </com.google.android.material.button.MaterialButtonToggleGroup>
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_mode_auto"
-                style="@style/Widget.Material3.Button.OutlinedButton"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:text="자동 최적화"
-                app:cornerRadius="14dp" />
+                <TextView
+                    android:id="@+id/mode_hint"
+                    style="@style/Ye.Text.BodySmall"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/ye_space_xs"
+                    android:text="@string/home_mode_hint_auto" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_mode_keep"
-                style="@style/Widget.Material3.Button.OutlinedButton"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:text="내 순서대로"
-                app:cornerRadius="14dp" />
-        </com.google.android.material.button.MaterialButtonToggleGroup>
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_district"
+                    style="@style/Ye.Button.Tonal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/ye_space_lg"
+                    android:text="@string/home_area_planner"
+                    app:icon="@drawable/ic_ye_place" />
 
-        <TextView
-            android:id="@+id/mode_hint"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:text="혼잡도를 예측해 방문 순서를 자동으로 조정해요"
-            android:textColor="@color/ye_on_surface_variant"
-            android:textSize="12sp" />
-
-        <ProgressBar
-            android:id="@+id/home_progress"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="12dp"
-            android:visibility="gone"
-            tools:visibility="visible" />
-
-        </LinearLayout>
+                <ProgressBar
+                    android:id="@+id/home_progress"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="@dimen/ye_space_sm"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
+            </LinearLayout>
         </androidx.core.widget.NestedScrollView>
     </LinearLayout>
 
-    <!-- 장소 정보 시트(네이버지도식): 핀/명소를 탭하거나 검색했을 때만 아래에서 올라온다.
-         기본은 숨김(hideable + STATE_HIDDEN). 코스 시트 위에 겹쳐 뜬다. -->
+    <!-- ══ 장소 상세 시트 — 핀/명소를 탭하거나 검색했을 때만 올라온다 ══ -->
     <LinearLayout
         android:id="@+id/place_info"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:background="@drawable/ye_sheet_bg"
-        android:elevation="16dp"
-        android:paddingBottom="20dp"
-        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
+        android:elevation="24dp"
+        android:orientation="vertical"
+        android:paddingBottom="@dimen/ye_space_lg"
+        app:behavior_draggable="true"
         app:behavior_hideable="true"
         app:behavior_skipCollapsed="true"
-        app:behavior_draggable="true">
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
         <View
-            android:layout_width="40dp"
-            android:layout_height="5dp"
+            android:layout_width="36dp"
+            android:layout_height="4dp"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="12dp"
+            android:layout_marginTop="@dimen/ye_space_sm"
+            android:layout_marginBottom="@dimen/ye_space_md"
             android:background="@drawable/ye_handle" />
 
-        <!-- 이름 + 닫기 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="top"
             android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:paddingHorizontal="20dp">
+            android:paddingHorizontal="@dimen/ye_gutter">
 
             <TextView
                 android:id="@+id/info_title"
+                style="@style/Ye.Text.Title"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:maxLines="2"
                 android:ellipsize="end"
-                android:text="장소명"
-                android:textColor="@color/ye_on_surface"
-                android:textSize="21sp"
-                android:textStyle="bold" />
+                android:maxLines="2"
+                tools:text="경복궁" />
 
-            <TextView
+            <ImageButton
                 android:id="@+id/info_close"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:padding="8dp"
-                android:text="✕"
-                android:textColor="@color/ye_on_surface_variant"
-                android:textSize="16sp" />
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="@dimen/ye_space_xs"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/ye_close"
+                android:padding="@dimen/ye_space_xs"
+                android:src="@drawable/ic_ye_close"
+                app:tint="@color/ye_on_surface_variant" />
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/info_meta"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:paddingHorizontal="20dp"
-            android:maxLines="2"
-            android:ellipsize="end"
-            android:text="분류 · 혼잡 · 거리"
-            android:textColor="@color/ye_on_surface_variant"
-            android:textSize="14sp" />
-
-        <!-- 액션 행: 플래너 추가(주요) + 보조 액션 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:paddingHorizontal="20dp"
+            android:layout_marginTop="@dimen/ye_space_xs"
+            android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:paddingHorizontal="@dimen/ye_gutter">
+
+            <TextView
+                android:id="@+id/info_level"
+                style="@style/Ye.Badge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/ye_space_xs"
+                android:visibility="gone"
+                tools:text="여유"
+                tools:visibility="visible" />
+
+            <TextView
+                android:id="@+id/info_meta"
+                style="@style/Ye.Text.BodySmall"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:maxLines="2"
+                tools:text="고궁 · 한적함 72 · 1.4km" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/ye_space_md"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="@dimen/ye_gutter">
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/info_add"
+                style="@style/Ye.Button"
                 android:layout_width="0dp"
+                android:layout_height="@dimen/ye_button_h"
                 android:layout_weight="1"
-                android:layout_height="50dp"
-                android:text="＋ 플래너에 추가"
-                android:textSize="15sp"
                 android:minWidth="0dp"
-                app:cornerRadius="16dp" />
+                android:text="@string/place_add"
+                app:icon="@drawable/ic_ye_add" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/info_fav"
+                style="@style/Ye.Button.Icon.Tonal"
+                android:layout_width="@dimen/ye_button_h"
+                android:layout_height="@dimen/ye_button_h"
+                android:layout_marginStart="@dimen/ye_space_xs"
+                android:contentDescription="@string/place_fav_cd"
+                app:icon="@drawable/ic_ye_heart" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/info_offpeak"
-                style="@style/Widget.Material3.Button.TonalButton"
-                android:layout_width="wrap_content"
-                android:layout_height="50dp"
-                android:layout_marginStart="8dp"
-                android:text="⏰"
-                android:textSize="17sp"
-                android:minWidth="0dp"
-                android:paddingHorizontal="16dp"
-                app:cornerRadius="16dp" />
+                style="@style/Ye.Button.Icon.Tonal"
+                android:layout_width="@dimen/ye_button_h"
+                android:layout_height="@dimen/ye_button_h"
+                android:layout_marginStart="@dimen/ye_space_xs"
+                android:contentDescription="@string/place_offpeak_cd"
+                app:icon="@drawable/ic_ye_clock" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/info_disperse"
-                style="@style/Widget.Material3.Button.TonalButton"
-                android:layout_width="wrap_content"
-                android:layout_height="50dp"
-                android:layout_marginStart="8dp"
-                android:text="🚶"
-                android:textSize="17sp"
-                android:minWidth="0dp"
-                android:paddingHorizontal="16dp"
-                app:cornerRadius="16dp" />
+                style="@style/Ye.Button.Icon.Tonal"
+                android:layout_width="@dimen/ye_button_h"
+                android:layout_height="@dimen/ye_button_h"
+                android:layout_marginStart="@dimen/ye_space_xs"
+                android:contentDescription="@string/place_disperse_cd"
+                app:icon="@drawable/ic_ye_disperse" />
         </LinearLayout>
 
         <TextView
+            style="@style/Ye.Text.Caption"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:paddingHorizontal="20dp"
-            android:text="⏰ 덜 붐비는 시간 · 🚶 근처 더 한적한 곳"
-            android:textColor="@color/ye_on_surface_variant"
-            android:textSize="12sp" />
+            android:layout_marginTop="@dimen/ye_space_xs"
+            android:paddingHorizontal="@dimen/ye_gutter"
+            android:text="@string/place_action_hint" />
     </LinearLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

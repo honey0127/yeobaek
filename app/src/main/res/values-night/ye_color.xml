@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  다크 테마 — values/ye_color.xml 의 **시맨틱 토큰만** 갈아끼운다.
+  원색 램프(ye_brand_*, ye_slate_*)는 그대로 두므로 여기 없다.
+
+  다크에서는 밝은 면일수록 위로 올라온 것처럼 보인다 — background 가 가장 어둡고
+  surface → surface_container 로 갈수록 밝아지는 순서를 지킬 것.
+  브랜드색은 어두운 배경에서 대비가 안 나오므로 램프 위쪽(밝은 틸)을 primary 로 쓴다.
+-->
+<resources>
+
+    <color name="ye_primary">#74B8B6</color>
+    <color name="ye_primary_pressed">#8DC9C7</color>
+    <color name="ye_on_primary">#062A2C</color>
+    <color name="ye_primary_container">#12474A</color>
+    <color name="ye_on_primary_container">#BAD6D5</color>
+    <color name="ye_secondary">#9AC9C7</color>
+    <color name="ye_accent">#74B8B6</color>
+
+    <color name="ye_background">#0E1415</color>
+    <color name="ye_surface">#161E1F</color>
+    <color name="ye_surface_container">#1C2526</color>
+    <color name="ye_surface_variant">#222C2E</color>
+
+    <color name="ye_on_surface">#E8EEEE</color>
+    <color name="ye_on_surface_variant">#A2AFB0</color>
+    <color name="ye_on_surface_faint">#788687</color>
+
+    <color name="ye_outline">#2A3436</color>
+    <color name="ye_outline_strong">#3C4A4C</color>
+
+    <color name="ye_scrim">#66000000</color>
+    <color name="ye_skeleton">#222C2E</color>
+
+    <color name="ye_eco">#5FB088</color>
+    <color name="ye_eco_container">#163128</color>
+    <color name="ye_stamp">#D6A163</color>
+    <color name="ye_stamp_container">#332616</color>
+
+    <!-- 혼잡 레벨: 어두운 배경에서 읽히도록 한 단계 밝게(색상 관계는 유지). -->
+    <color name="ye_lv1">#5FB088</color>
+    <color name="ye_lv2">#D9A257</color>
+    <color name="ye_lv3">#CE7A76</color>
+    <color name="ye_lv4">#BE656A</color>
+    <color name="ye_lv_unknown">#7A8788</color>
+
+    <color name="ye_lv1_container">#163126</color>
+    <color name="ye_lv2_container">#332818</color>
+    <color name="ye_lv3_container">#33201F</color>
+    <color name="ye_lv4_container">#331C1E</color>
+    <color name="ye_lv_unknown_container">#222C2E</color>
+
+    <color name="ye_danger">#E08A88</color>
+    <color name="ye_danger_container">#3A2020</color>
+
+</resources>

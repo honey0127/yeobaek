@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  여백 팔레트 — "Deep Slate Teal / 차분한 지성".
+
+  구성이 두 층이다:
+    1) 원색 램프(ye_brand_*, ye_slate_*) — 색 자체. 레이아웃에서 직접 쓰지 말 것.
+    2) 시맨틱 토큰(ye_primary, ye_surface …) — 역할. 레이아웃은 이것만 쓴다.
+
+  다크 테마(values-night/ye_color.xml)는 2)만 갈아끼운다. 그래서 레이아웃을
+  건드리지 않고도 밝기 모드가 통째로 바뀐다 — 레이아웃에 #FFFFFF 같은 리터럴을
+  쓰는 순간 그 규칙이 깨지므로 절대 쓰지 말 것.
+-->
+<resources>
+
+    <!-- ── 1) 브랜드 램프: 딥 슬레이트 틸 ── -->
+    <color name="ye_brand_50">#F1F7F6</color>
+    <color name="ye_brand_100">#DCEBEA</color>
+    <color name="ye_brand_200">#BAD6D5</color>
+    <color name="ye_brand_300">#8DBAB9</color>
+    <color name="ye_brand_400">#5B9695</color>
+    <color name="ye_brand_500">#2E7679</color>
+    <color name="ye_brand_600">#17595E</color>   <!-- 브랜드 기준색 -->
+    <color name="ye_brand_700">#114A4E</color>
+    <color name="ye_brand_800">#0D383B</color>
+    <color name="ye_brand_900">#082527</color>
+
+    <!-- ── 1) 중립 램프: 살짝 틸 기운이 도는 슬레이트(순회색보다 브랜드와 붙는다) ── -->
+    <color name="ye_slate_0">#FFFFFF</color>
+    <color name="ye_slate_25">#FBFCFC</color>
+    <color name="ye_slate_50">#F6F8F8</color>
+    <color name="ye_slate_100">#EDF2F2</color>
+    <color name="ye_slate_200">#DFE7E7</color>
+    <color name="ye_slate_300">#C5D0D1</color>
+    <color name="ye_slate_400">#9AA7A9</color>
+    <color name="ye_slate_500">#6C7A7C</color>
+    <color name="ye_slate_600">#4F5C5E</color>
+    <color name="ye_slate_700">#374244</color>
+    <color name="ye_slate_800">#222C2E</color>
+    <color name="ye_slate_900">#121A1B</color>
+
+    <!-- 보조 강조: 따뜻한 모래빛. 리워드·스탬프처럼 '기분 좋은' 지점에만 쓴다. -->
+    <color name="ye_sand_100">#F6EDDF</color>
+    <color name="ye_sand_500">#B98442</color>
+    <color name="ye_sand_700">#8A6029</color>
+
+    <!-- ── 2) 시맨틱 토큰 ── -->
+    <color name="ye_primary">#17595E</color>
+    <color name="ye_primary_pressed">#114A4E</color>
+    <color name="ye_on_primary">#FFFFFF</color>
+    <color name="ye_primary_container">#DCEBEA</color>
+    <color name="ye_on_primary_container">#0D383B</color>
+    <color name="ye_secondary">#0F3E42</color>
+    <color name="ye_accent">#17595E</color>
+
+    <!-- 배경 · 표면. surface_container 는 배경 위에 얹는 '한 겹 위' 면. -->
+    <color name="ye_background">#F6F8F8</color>
+    <color name="ye_surface">#FFFFFF</color>
+    <color name="ye_surface_container">#FBFCFC</color>
+    <color name="ye_surface_variant">#EDF2F2</color>
+
+    <color name="ye_on_surface">#121A1B</color>
+    <color name="ye_on_surface_variant">#6C7A7C</color>
+    <color name="ye_on_surface_faint">#9AA7A9</color>
+
+    <color name="ye_outline">#DFE7E7</color>
+    <color name="ye_outline_strong">#C5D0D1</color>
+
+    <!-- 지도·이미지 위에 글자를 얹을 때 까는 반투명 막. -->
+    <color name="ye_scrim">#33000000</color>
+    <!-- 스켈레톤(로딩 자리표시) 블록 색. -->
+    <color name="ye_skeleton">#EDF2F2</color>
+
+    <!-- 리워드 계열 -->
+    <color name="ye_eco">#3E8C6A</color>
+    <color name="ye_eco_container">#E3F1EA</color>
+    <color name="ye_stamp">#B98442</color>
+    <color name="ye_stamp_container">#F6EDDF</color>
+
+    <!-- ── 혼잡 레벨(시맨틱 히트 스케일) ──
+         채도를 낮춘 4단계. 이 값들은 Congestion.kt 의 color()/heatFill() 과 반드시 같아야
+         한다(지도 핀·히트맵 원은 코드에서 색을 만들기 때문). 한쪽만 고치지 말 것. -->
+    <color name="ye_lv1">#3E8C6A</color>   <!-- 여유 · 세이지 -->
+    <color name="ye_lv2">#C08A3C</color>   <!-- 보통 · 앰버 -->
+    <color name="ye_lv3">#B75F5B</color>   <!-- 약간 붐빔 · 뮤트 크림슨 -->
+    <color name="ye_lv4">#8F4247</color>   <!-- 붐빔 -->
+    <color name="ye_lv_unknown">#9AA7A9</color>  <!-- 정보 없음 — '보통'으로 속이지 않는다 -->
+
+    <!-- 레벨별 연한 배경(배지·칩의 컨테이너). -->
+    <color name="ye_lv1_container">#E3F1EA</color>
+    <color name="ye_lv2_container">#F7EDDC</color>
+    <color name="ye_lv3_container">#F7E5E4</color>
+    <color name="ye_lv4_container">#F2DEDF</color>
+    <color name="ye_lv_unknown_container">#EDF2F2</color>
+
+    <!-- 상태 -->
+    <color name="ye_danger">#B3403F</color>
+    <color name="ye_danger_container">#F8E3E2</color>
+
+</resources>

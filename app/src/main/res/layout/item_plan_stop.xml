@@ -1,98 +1,139 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<!--
+  코스의 정거장 한 곳.
+
+  예전에는 카드가 그냥 세로로 나열돼 있어서 "몇 시에 어디" 라는 건 알아도
+  '하루의 흐름'으로는 안 읽혔다. 왼쪽에 시각 축과 연결선·점을 두어 실제 타임라인처럼
+  보이게 했다. 점 색이 그 시각의 혼잡 레벨이라 위에서 아래로 훑으면 하루의 혼잡 흐름이 보인다.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginHorizontal="16dp"
-    android:layout_marginTop="12dp"
-    app:cardElevation="0dp"
-    app:cardBackgroundColor="@color/ye_surface"
-    app:strokeColor="@color/ye_outline"
-    app:strokeWidth="1dp"
-    app:cardCornerRadius="16dp">
+    android:orientation="horizontal"
+    android:paddingStart="@dimen/ye_gutter"
+    android:paddingEnd="@dimen/ye_gutter">
 
+    <!-- 시각 축 -->
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="46dp"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:padding="16dp">
+        android:layout_marginTop="@dimen/ye_space_sm"
+        android:orientation="vertical">
 
-        <LinearLayout
-            android:layout_width="52dp"
+        <TextView
+            android:id="@+id/stop_arrival"
+            style="@style/Ye.Text.TitleSmall"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:textColor="@color/ye_on_surface"
+            tools:text="14:00" />
 
-            <TextView
-                android:id="@+id/stop_arrival"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="14:00"
-                android:textColor="@color/ye_primary"
-                android:textStyle="bold"
-                android:textSize="17sp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="도착"
-                android:textColor="@color/ye_on_surface_variant"
-                android:textSize="11sp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="0dp"
+        <TextView
+            style="@style/Ye.Text.Caption"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="도착" />
+    </LinearLayout>
+
+    <!-- 연결선 + 정거장 점 -->
+    <LinearLayout
+        android:layout_width="24dp"
+        android:layout_height="match_parent"
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
+
+        <View
+            android:id="@+id/stop_line_top"
+            android:layout_width="2dp"
+            android:layout_height="14dp"
+            android:background="@drawable/ye_timeline_line" />
+
+        <View
+            android:id="@+id/stop_node"
+            android:layout_width="14dp"
+            android:layout_height="14dp"
+            android:background="@drawable/ye_timeline_node" />
+
+        <View
+            android:id="@+id/stop_line_bottom"
+            android:layout_width="2dp"
+            android:layout_height="0dp"
             android:layout_weight="1"
-            android:layout_marginStart="12dp"
-            android:orientation="vertical">
+            android:background="@drawable/ye_timeline_line" />
+    </LinearLayout>
 
-            <TextView
-                android:id="@+id/stop_title"
-                android:layout_width="wrap_content"
+    <com.google.android.material.card.MaterialCardView
+        style="@style/Ye.Card"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/ye_space_xs"
+        android:layout_marginTop="@dimen/ye_space_xs"
+        android:layout_marginBottom="@dimen/ye_space_xs"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/ye_space_sm">
+
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="장소"
-                android:textColor="@color/ye_on_surface"
-                android:textSize="17sp" />
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/stop_title"
+                    style="@style/Ye.Text.TitleSmall"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:maxLines="2"
+                    tools:text="창덕궁 후원" />
+
+                <TextView
+                    android:id="@+id/stop_badge"
+                    style="@style/Ye.Badge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/ye_space_xs"
+                    tools:text="여유" />
+
+                <!-- 길게 눌러 끌 수 있다는 힌트. 안내 문구만으로는 아무도 안 해본다. -->
+                <ImageView
+                    android:layout_width="@dimen/ye_icon_md"
+                    android:layout_height="@dimen/ye_icon_md"
+                    android:layout_marginStart="@dimen/ye_space_2xs"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_ye_drag"
+                    app:tint="@color/ye_on_surface_faint" />
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/stop_sub"
-                android:layout_width="wrap_content"
+                style="@style/Ye.Text.Caption"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="대안으로 스왑됨"
+                android:layout_marginTop="@dimen/ye_space_3xs"
                 android:textColor="@color/ye_lv3"
-                android:textSize="12sp"
-                android:visibility="gone" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:gravity="end">
-
-            <TextView
-                android:id="@+id/stop_badge"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/ye_badge"
-                android:text="보통"
-                android:textColor="#FFFFFF"
-                android:textSize="12sp"
-                android:paddingHorizontal="12dp"
-                android:paddingVertical="5dp" />
+                android:visibility="gone"
+                tools:text="대안으로 바꾼 곳"
+                tools:visibility="visible" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/stop_alt"
-                style="@style/Widget.Material3.Button.TextButton"
+                style="@style/Ye.Button.Tonal.Compact"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:minWidth="0dp"
-                android:paddingHorizontal="8dp"
-                android:text="대안 보기"
-                android:textSize="13sp"
-                android:visibility="gone" />
+                android:layout_marginTop="@dimen/ye_space_xs"
+                android:text="@string/plan_alt"
+                android:visibility="gone"
+                app:icon="@drawable/ic_ye_swap"
+                tools:visibility="visible" />
         </LinearLayout>
-    </LinearLayout>
-</com.google.android.material.card.MaterialCardView>
+    </com.google.android.material.card.MaterialCardView>
+</LinearLayout>

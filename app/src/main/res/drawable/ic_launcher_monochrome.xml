@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 테마 아이콘(Android 13+)용 단색 심볼. 색은 런처가 입힌다 — 흰색으로만 그린다. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:pathData="M64.5,35.81 A21,21 0 1,1 43.5,35.81"
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="7"
+        android:strokeLineCap="round" />
+    <path
+        android:pathData="M60.5,54 A6.5,6.5 0 1,1 47.5,54 A6.5,6.5 0 1,1 60.5,54"
+        android:fillColor="#FFFFFFFF" />
+</vector>

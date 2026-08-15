@@ -1,52 +1,207 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  장소 검색.
+
+  바뀐 점: 검색창이 화면 맨 위에 고정된 검색 바가 되었고(뒤로·지우기 버튼 포함),
+  검색어가 비었을 때는 최근 검색어를 칩으로 보여준다. 결과 없음/서버 오류는
+  아이콘 + 제목 + 설명 + 다시 시도 버튼을 갖춘 상태 화면으로 통일했다.
+-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/search_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:background="@color/ye_background"
+    android:orientation="vertical">
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/search_til"
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+    <!-- ── 검색 바 ── -->
+    <LinearLayout
+        android:id="@+id/search_bar_row"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="장소 이름 검색 (예: 경복궁, 한강공원)"
-        app:startIconDrawable="@android:drawable/ic_menu_search">
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/ye_space_xs"
+        android:paddingTop="@dimen/ye_space_xs"
+        android:paddingEnd="@dimen/ye_gutter"
+        android:paddingBottom="@dimen/ye_space_xs">
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/search_input"
-            android:layout_width="match_parent"
+        <ImageButton
+            android:id="@+id/search_back"
+            android:layout_width="@dimen/ye_touch_min"
+            android:layout_height="@dimen/ye_touch_min"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/ye_back"
+            android:padding="@dimen/ye_space_sm"
+            android:src="@drawable/ic_ye_arrow_back"
+            app:tint="@color/ye_on_surface" />
+
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Ye.Card"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:imeOptions="actionSearch"
-            android:inputType="text"
-            android:maxLines="1" />
-    </com.google.android.material.textfield.TextInputLayout>
+            android:layout_marginStart="@dimen/ye_space_2xs"
+            android:layout_weight="1"
+            app:cardBackgroundColor="@color/ye_surface"
+            app:cardCornerRadius="@dimen/ye_radius_pill">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:minHeight="@dimen/ye_touch_min"
+                android:orientation="horizontal"
+                android:paddingStart="@dimen/ye_space_md"
+                android:paddingEnd="@dimen/ye_space_2xs">
+
+                <ImageView
+                    android:layout_width="@dimen/ye_icon_md"
+                    android:layout_height="@dimen/ye_icon_md"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_ye_search"
+                    app:tint="@color/ye_on_surface_variant" />
+
+                <EditText
+                    android:id="@+id/search_input"
+                    style="@style/Ye.Text.Body"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/ye_space_sm"
+                    android:layout_weight="1"
+                    android:background="@null"
+                    android:hint="@string/search_hint"
+                    android:imeOptions="actionSearch"
+                    android:importantForAutofill="no"
+                    android:inputType="text"
+                    android:maxLines="1"
+                    android:textColorHint="@color/ye_on_surface_faint" />
+
+                <ImageButton
+                    android:id="@+id/search_clear"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/search_clear_cd"
+                    android:padding="@dimen/ye_space_xs"
+                    android:src="@drawable/ic_ye_close"
+                    android:visibility="gone"
+                    app:tint="@color/ye_on_surface_variant"
+                    tools:visibility="visible" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+    </LinearLayout>
 
     <ProgressBar
         android:id="@+id/search_progress"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="16dp"
-        android:visibility="gone" />
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+        android:indeterminate="true"
+        android:visibility="invisible"
+        tools:visibility="visible" />
 
-    <TextView
-        android:id="@+id/search_hint"
+    <!-- ── 최근 검색(검색어가 비었을 때만) ── -->
+    <LinearLayout
+        android:id="@+id/search_recent_panel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:paddingHorizontal="28dp"
-        android:gravity="center"
-        android:lineSpacingExtra="4dp"
-        android:text="장소 이름을 입력해 검색하세요"
-        android:textSize="14sp"
-        android:textColor="@color/ye_on_surface_variant" />
+        android:orientation="vertical"
+        android:paddingHorizontal="@dimen/ye_gutter"
+        android:paddingTop="@dimen/ye_space_md"
+        android:visibility="gone"
+        tools:visibility="visible">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/search_list"
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                style="@style/Ye.Text.Section"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/search_recent" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/search_recent_clear"
+                style="@style/Ye.Button.Text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="36dp"
+                android:paddingHorizontal="@dimen/ye_space_xs"
+                android:text="@string/search_recent_clear" />
+        </LinearLayout>
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/search_recent_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:chipSpacingVertical="@dimen/ye_space_3xs" />
+    </LinearLayout>
+
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:layout_marginTop="8dp" />
+        android:layout_weight="1">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/search_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingTop="@dimen/ye_space_xs"
+            android:paddingBottom="@dimen/ye_space_md" />
+
+        <!-- ── 상태(안내 / 결과 없음 / 오류) ── -->
+        <LinearLayout
+            android:id="@+id/state_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:paddingHorizontal="@dimen/ye_space_2xl">
+
+            <ImageView
+                android:id="@+id/state_icon"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:alpha="0.5"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_ye_search"
+                app:tint="@color/ye_on_surface_faint" />
+
+            <TextView
+                android:id="@+id/state_title"
+                style="@style/Ye.Text.TitleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/ye_space_md"
+                android:gravity="center"
+                android:text="@string/search_idle" />
+
+            <TextView
+                android:id="@+id/state_body"
+                style="@style/Ye.Text.BodySmall"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/ye_space_xs"
+                android:gravity="center"
+                android:text="@string/search_idle_sub" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/state_retry"
+                style="@style/Ye.Button.Tonal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/ye_space_md"
+                android:text="@string/ye_retry"
+                android:visibility="gone"
+                app:icon="@drawable/ic_ye_refresh"
+                tools:visibility="visible" />
+        </LinearLayout>
+    </FrameLayout>
 </LinearLayout>

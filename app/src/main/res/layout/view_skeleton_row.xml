@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  로딩 자리표시(스켈레톤) 한 줄.
+
+  스피너 하나만 도는 화면은 "얼마나 기다려야 하는지"도 "무엇이 올지"도 알려주지 않는다.
+  올라올 카드와 같은 모양의 회색 블록을 먼저 깔아 두면 체감 대기시간이 짧아진다.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingHorizontal="@dimen/ye_gutter"
+    android:paddingVertical="@dimen/ye_space_sm">
+
+    <View
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:background="@drawable/ye_bg_circle_tint"
+        android:backgroundTint="@color/ye_skeleton" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/ye_space_sm"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <View
+            android:layout_width="160dp"
+            android:layout_height="14dp"
+            android:background="@drawable/ye_bg_skeleton" />
+
+        <View
+            android:layout_width="104dp"
+            android:layout_height="11dp"
+            android:layout_marginTop="@dimen/ye_space_xs"
+            android:background="@drawable/ye_bg_skeleton" />
+    </LinearLayout>
+</LinearLayout>

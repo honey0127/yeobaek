@@ -1,48 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <!-- ── 여백(Yeobaek) 팔레트: Deep Slate Teal "차분한 지성" (Compose 레이어와 통일) ── -->
-    <color name="ye_primary">#17595E</color>          <!-- 브랜드 딥 슬레이트 틸(CTA) -->
-    <color name="ye_on_primary">#FFFFFF</color>
-    <color name="ye_primary_container">#E7F1F0</color>  <!-- 브랜드 틴트 -->
-    <color name="ye_on_primary_container">#0C3134</color>
-    <color name="ye_secondary">#0F3E42</color>          <!-- 브랜드 딥(보조 강조) -->
-    <color name="ye_background">#F9FAFB</color>          <!-- 초크 화이트 -->
-    <color name="ye_surface">#FFFFFF</color>
-    <color name="ye_surface_variant">#EEF3F3</color>
-    <color name="ye_on_surface">#111827</color>         <!-- 차콜 -->
-    <color name="ye_on_surface_variant">#6B7280</color> <!-- 슬레이트 그레이 -->
-    <color name="ye_outline">#DEE7E7</color>            <!-- 틸 바이어스 헤어라인 -->
-    <color name="ye_accent">#17595E</color>
+<!--
+  여백 테마.
 
-    <!-- 혼잡 레벨 색(시맨틱 히트 스케일, 채도 낮춤: 여유→붐빔) -->
-    <color name="ye_lv1">#3F8266</color>  <!-- 세이지 -->
-    <color name="ye_lv2">#B4863F</color>  <!-- 앰버 -->
-    <color name="ye_lv3">#AF585A</color>  <!-- 뮤트 크림슨 -->
-    <color name="ye_lv4">#93454A</color>
+  색은 values/ye_color.xml, 타이포는 ye_type.xml, 컴포넌트는 ye_style.xml 로 나뉘어 있다.
+  이 파일은 그것들을 Material3 속성에 연결하는 역할만 한다.
 
-    <!-- ── 테마 ── -->
+  다크 테마는 values-night/yeobaek.xml + values-night/ye_color.xml 이 담당한다.
+-->
+<resources xmlns:tools="http://schemas.android.com/tools">
+
     <style name="Theme.Yeobaek" parent="Theme.Material3.Light.NoActionBar">
         <item name="colorPrimary">@color/ye_primary</item>
         <item name="colorOnPrimary">@color/ye_on_primary</item>
         <item name="colorPrimaryContainer">@color/ye_primary_container</item>
         <item name="colorOnPrimaryContainer">@color/ye_on_primary_container</item>
         <item name="colorSecondary">@color/ye_secondary</item>
+        <item name="colorSecondaryContainer">@color/ye_primary_container</item>
+        <item name="colorOnSecondaryContainer">@color/ye_on_primary_container</item>
         <item name="android:colorBackground">@color/ye_background</item>
         <item name="colorSurface">@color/ye_surface</item>
         <item name="colorSurfaceVariant">@color/ye_surface_variant</item>
         <item name="colorOnSurface">@color/ye_on_surface</item>
         <item name="colorOnSurfaceVariant">@color/ye_on_surface_variant</item>
         <item name="colorOutline">@color/ye_outline</item>
-        <item name="android:statusBarColor">@color/ye_background</item>
+        <item name="colorError">@color/ye_danger</item>
+
+        <!-- 시스템 바: 화면을 가로지르는 색띠를 없애고 콘텐츠가 끝까지 흐르게 한다.
+             각 화면은 YeInsets 로 상태바/내비바 높이만큼 패딩을 넣어 겹침을 막는다. -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">true</item>
+
+        <!-- 기본 컴포넌트가 디자인 시스템을 따르도록 -->
+        <item name="materialCardViewStyle">@style/Ye.Card</item>
+        <item name="materialButtonStyle">@style/Ye.Button</item>
+        <item name="chipStyle">@style/Ye.Chip</item>
+
+        <!-- 다이얼로그·시트도 앱 라운딩을 따라간다(각진 기본형이 튀지 않도록) -->
+        <item name="materialAlertDialogTheme">@style/Ye.AlertDialog</item>
+        <item name="bottomSheetDialogTheme">@style/Ye.BottomSheetDialog</item>
     </style>
 
-    <!-- 텍스트 스타일 -->
-    <style name="Ye.Title" parent="TextAppearance.Material3.HeadlineSmall">
-        <item name="android:textStyle">bold</item>
-        <item name="android:textColor">@color/ye_on_surface</item>
+    <style name="Ye.AlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="shapeAppearanceOverlay">@style/Ye.Shape.Dialog</item>
+        <item name="backgroundTint">@color/ye_surface</item>
     </style>
-    <style name="Ye.Section" parent="TextAppearance.Material3.LabelLarge">
-        <item name="android:textColor">@color/ye_on_surface_variant</item>
+
+    <style name="Ye.Shape.Dialog" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/ye_radius_lg</item>
     </style>
+
+    <style name="Ye.BottomSheetDialog" parent="ThemeOverlay.Material3.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/Ye.BottomSheetModal</item>
+    </style>
+
+    <style name="Ye.BottomSheetModal" parent="Widget.Material3.BottomSheet.Modal">
+        <item name="backgroundTint">@color/ye_surface</item>
+        <item name="shapeAppearanceOverlay">@style/Ye.Shape.BottomSheet</item>
+    </style>
+
+    <style name="Ye.Shape.BottomSheet" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopLeft">@dimen/ye_radius_xl</item>
+        <item name="cornerSizeTopRight">@dimen/ye_radius_xl</item>
+        <item name="cornerSizeBottomLeft">0dp</item>
+        <item name="cornerSizeBottomRight">0dp</item>
+    </style>
+
 </resources>

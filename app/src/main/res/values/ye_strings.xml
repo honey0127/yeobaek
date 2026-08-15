@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  여백 화면 문구.
+
+  레이아웃에 한글을 직접 박아두면 (1) 접근성 라벨을 빼먹기 쉽고 (2) 같은 말을 화면마다
+  다르게 쓰게 된다. 화면에 보이는 문장과 contentDescription 은 여기에 모은다.
+-->
+<resources>
+
+    <!-- 아이콘 전용 버튼의 빈 텍스트(스타일에서 참조). -->
+    <string name="ye_empty" translatable="false"></string>
+
+    <!-- ── 공통 ── -->
+    <string name="ye_back">뒤로</string>
+    <string name="ye_close">닫기</string>
+    <string name="ye_retry">다시 시도</string>
+    <string name="ye_cancel">취소</string>
+    <string name="ye_confirm">확인</string>
+
+    <!-- ── 홈 ── -->
+    <string name="home_search_hint">어디를 둘러볼까요?</string>
+    <string name="home_search_cd">장소 검색 열기</string>
+    <string name="home_eco_cd">내 여백 열기 — 에코 포인트·스탬프·저장한 코스</string>
+    <string name="home_filter_quiet">한적한 곳만</string>
+    <string name="home_filter_legend">혼잡 색</string>
+    <string name="home_action_report">제보</string>
+    <string name="home_reco_default">이 지역 추천 · 코스에 넣어볼까요?</string>
+    <string name="home_reco_close_cd">추천 닫기</string>
+    <string name="home_legend_title">지금 혼잡도</string>
+    <string name="home_legend_scale">여유 → 붐빔</string>
+    <string name="home_legend_unknown">회색 = 정보 없음</string>
+
+    <string name="home_sheet_handle_cd">코스 시트 펼치기/접기</string>
+    <string name="home_sheet_empty_title">아직 담은 장소가 없어요</string>
+    <string name="home_sheet_empty_sub">지도를 움직여 추천을 받거나 검색해 보세요</string>
+    <string name="home_plan">코스 만들기</string>
+    <string name="home_planning">만드는 중…</string>
+    <string name="home_when">언제 출발할까요?</string>
+    <string name="home_date_label">날짜</string>
+    <string name="home_time_label">출발 시각</string>
+    <string name="home_stops_label">담은 장소</string>
+    <string name="home_stops_empty">지도에서 장소를 담으면 여기에 쌓여요</string>
+    <string name="home_add_place">장소 추가</string>
+    <string name="home_mode_label">코스 방식</string>
+    <string name="home_mode_auto">자동 최적화</string>
+    <string name="home_mode_keep">내 순서대로</string>
+    <string name="home_mode_hint_auto">혼잡도를 예측해 방문 순서를 자동으로 조정해요</string>
+    <string name="home_mode_hint_keep">고른 순서를 그대로 두고, 각 장소의 도착 시점 혼잡도만 알려줘요</string>
+    <string name="home_area_planner">이 위치 기준으로 코스 짜기</string>
+
+    <!-- 장소 상세 시트 -->
+    <string name="place_add">코스에 추가</string>
+    <string name="place_added">코스에 담김</string>
+    <string name="place_fav_cd">찜하기</string>
+    <string name="place_offpeak_cd">덜 붐비는 시간 보기</string>
+    <string name="place_disperse_cd">근처 더 한적한 곳 찾기</string>
+    <string name="place_action_hint">⏱ 덜 붐비는 시간 · ⌾ 근처 더 한적한 곳 · ♡ 찜</string>
+
+    <!-- ── 검색 ── -->
+    <string name="search_hint">명소·장소 이름으로 검색</string>
+    <string name="search_clear_cd">검색어 지우기</string>
+    <string name="search_recent">최근 검색</string>
+    <string name="search_recent_clear">모두 지우기</string>
+    <string name="search_idle">가고 싶은 곳의 이름을 입력해 보세요</string>
+    <string name="search_idle_sub">경복궁, 한강공원, 성수동처럼 검색하면 됩니다</string>
+
+    <!-- ── 오프피크(덜 붐비는 시간) ── -->
+    <string name="offpeak_title">덜 붐비는 시간</string>
+    <string name="offpeak_best">가장 한적한 시간</string>
+    <string name="offpeak_timeline">앞으로 12시간</string>
+    <string name="offpeak_apply">이 시각으로 출발 설정</string>
+    <string name="offpeak_none">이 지역은 예보가 없어 오프피크 추천이 어려워요(서울권 예보지점 기준)</string>
+    <string name="offpeak_historical">과거 같은 시간대 평균으로 추정한 값</string>
+
+    <!-- ── 코스(플래너) ── -->
+    <string name="plan_title">오늘의 코스</string>
+    <string name="plan_recalc">이 순서로 다시 계산</string>
+    <string name="plan_recalculating">계산 중…</string>
+    <string name="plan_save">코스 저장</string>
+    <string name="plan_share">코스 공유</string>
+    <string name="plan_edit_hint">순서를 바꿨어요 — 다시 계산하면 도착 시각과 혼잡도가 갱신됩니다</string>
+    <string name="plan_gesture_hint">길게 눌러 순서 변경 · 옆으로 밀어 삭제</string>
+    <string name="plan_alt">대안 보기</string>
+    <string name="plan_notify_on">화면 꺼도 알림 받기</string>
+    <string name="plan_notify_off">백그라운드 감시 중 · 끄기</string>
+    <string name="plan_failed">코스를 만들지 못했습니다</string>
+
+    <!-- ── 대안 · 카드 ── -->
+    <string name="alt_swap">이 장소로 바꾸기</string>
+    <string name="alt_share_image">이미지로 공유</string>
+
+    <!-- ── 내 여백 ── -->
+    <string name="my_title">내 여백</string>
+    <string name="my_courses">저장한 코스</string>
+    <string name="my_courses_empty">아직 저장한 코스가 없어요.\n코스 화면에서 ‘코스 저장’을 누르면 여기에 쌓입니다.</string>
+    <string name="my_favorites">찜한 장소</string>
+    <string name="my_favorites_empty">지도에서 마음에 드는 곳을 ♡ 로 찜해 두면 여기 모여요.</string>
+    <string name="my_favorites_make">찜한 곳으로 코스 만들기</string>
+    <string name="my_stamps">여백 스탬프</string>
+    <string name="my_stamps_empty">지도에서 장소를 담으면 스탬프가 찍혀요.</string>
+    <string name="my_course_delete_cd">코스 삭제</string>
+    <string name="my_fav_delete_cd">찜 해제</string>
+
+    <!-- ── 지역 플래너 ── -->
+    <string name="district_title">코스 플래너</string>
+    <string name="district_sub">기준 위치를 고르면 그 주변 명소로 하루 코스를 만들어요</string>
+    <string name="district_center">기준 위치</string>
+    <string name="district_center_empty">위치를 선택하세요</string>
+    <string name="district_change">변경</string>
+    <string name="district_quick">빠른 선택</string>
+    <string name="district_make">코스 만들기</string>
+    <string name="district_pick">담기</string>
+    <string name="district_picked">담김</string>
+
+</resources>

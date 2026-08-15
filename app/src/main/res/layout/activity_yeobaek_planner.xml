@@ -1,92 +1,190 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  코스 화면 — 상단 바 + 요약 히어로 + 타임라인 + 하단 고정 액션.
+
+  액션 버튼들이 예전에는 목록 아래에 흩어져 있어서 스크롤 위치에 따라 보이다 말다 했다.
+  지금은 하단 바에 고정해 어디까지 스크롤해도 '다시 계산 / 저장'에 손이 닿는다.
+-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/planner_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/ye_background">
+    android:background="@color/ye_background"
+    android:orientation="vertical">
 
-    <com.google.android.material.card.MaterialCardView
+    <!-- ── 상단 바 ── -->
+    <LinearLayout
+        android:id="@+id/planner_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        app:cardElevation="0dp"
-        app:cardBackgroundColor="@color/ye_primary_container"
-        app:cardCornerRadius="20dp">
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/ye_space_xs"
+        android:paddingTop="@dimen/ye_space_xs"
+        android:paddingEnd="@dimen/ye_space_xs"
+        android:paddingBottom="@dimen/ye_space_xs">
+
+        <ImageButton
+            android:id="@+id/planner_back"
+            android:layout_width="@dimen/ye_touch_min"
+            android:layout_height="@dimen/ye_touch_min"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/ye_back"
+            android:padding="@dimen/ye_space_sm"
+            android:src="@drawable/ic_ye_arrow_back"
+            app:tint="@color/ye_on_surface" />
+
+        <TextView
+            style="@style/Ye.Text.TitleSmall"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/ye_space_2xs"
+            android:layout_weight="1"
+            android:text="@string/plan_title" />
+
+        <ImageButton
+            android:id="@+id/planner_share"
+            android:layout_width="@dimen/ye_touch_min"
+            android:layout_height="@dimen/ye_touch_min"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/plan_share"
+            android:padding="@dimen/ye_space_sm"
+            android:src="@drawable/ic_ye_share"
+            app:tint="@color/ye_on_surface" />
+    </LinearLayout>
+
+    <!-- ── 요약 히어로 ── -->
+    <com.google.android.material.card.MaterialCardView
+        style="@style/Ye.Card.Brand"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/ye_gutter"
+        android:layout_marginBottom="@dimen/ye_space_sm">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="20dp">
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="@dimen/ye_space_md">
 
-            <TextView
-                android:id="@+id/planner_saved"
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/planner_saved"
+                    style="@style/Ye.Text.Headline"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/ye_on_primary_container"
+                    tools:text="혼잡 38% 절약" />
+
+                <TextView
+                    android:id="@+id/planner_sub"
+                    style="@style/Ye.Text.BodySmall"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/ye_space_3xs"
+                    android:textColor="@color/ye_on_primary_container"
+                    tools:text="4곳 · 혼잡도 예측으로 순서 자동 조정" />
+
+                <TextView
+                    android:id="@+id/planner_hint"
+                    style="@style/Ye.Text.LabelSmall"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/ye_space_xs"
+                    android:textColor="@color/ye_on_primary_container"
+                    android:visibility="gone"
+                    tools:text="군중과 엇갈리는 동선으로 재배치했어요"
+                    tools:visibility="visible" />
+            </LinearLayout>
+
+            <!-- 여백 지수 — 이 계획의 단일 점수(있을 때만) -->
+            <LinearLayout
+                android:id="@+id/planner_index_box"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="코스"
-                android:textColor="@color/ye_on_primary_container"
-                android:textSize="24sp"
-                android:textStyle="bold" />
+                android:layout_marginStart="@dimen/ye_space_sm"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:visibility="gone"
+                tools:visibility="visible">
 
-            <TextView
-                android:id="@+id/planner_sub"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text=""
-                android:textColor="@color/ye_on_primary_container"
-                android:textSize="13sp" />
+                <TextView
+                    android:id="@+id/planner_index"
+                    style="@style/Ye.Text.Display"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/ye_on_primary_container"
+                    tools:text="82" />
 
-            <TextView
-                android:id="@+id/planner_hint"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text=""
-                android:textColor="@color/ye_on_primary_container"
-                android:textStyle="bold"
-                android:textSize="12sp"
-                android:visibility="gone" />
+                <TextView
+                    style="@style/Ye.Text.Caption"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="여백 지수"
+                    android:textColor="@color/ye_on_primary_container" />
+            </LinearLayout>
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- 실시간 급증 알림(모듈4) -->
+    <!-- ── 실시간 급증 알림 ── -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/planner_alert"
+        style="@style/Ye.Card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginHorizontal="@dimen/ye_gutter"
+        android:layout_marginBottom="@dimen/ye_space_xs"
         android:visibility="gone"
-        app:cardElevation="0dp"
-        app:strokeColor="@color/ye_lv4"
-        app:strokeWidth="1dp"
-        app:cardBackgroundColor="@color/ye_surface"
-        app:cardCornerRadius="16dp">
+        app:cardBackgroundColor="@color/ye_danger_container"
+        app:strokeColor="@color/ye_danger"
+        tools:visibility="visible">
 
-        <TextView
-            android:id="@+id/planner_alert_text"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="14dp"
-            android:text=""
-            android:textColor="@color/ye_lv4"
-            android:textStyle="bold"
-            android:textSize="13sp" />
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="@dimen/ye_space_sm">
+
+            <ImageView
+                android:layout_width="@dimen/ye_icon_md"
+                android:layout_height="@dimen/ye_icon_md"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_ye_trending"
+                app:tint="@color/ye_danger" />
+
+            <TextView
+                android:id="@+id/planner_alert_text"
+                style="@style/Ye.Text.LabelSmall"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/ye_space_xs"
+                android:layout_weight="1"
+                android:textColor="@color/ye_danger"
+                tools:text="‘경복궁’ 지금 붐빔 — 도착 시점을 늦추거나 대안을 눌러보세요" />
+        </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- 편집 안내(순서를 바꾸거나 지운 뒤에만 보인다) -->
+    <!-- 편집 안내(순서를 바꾸거나 지운 뒤에만) -->
     <TextView
         android:id="@+id/planner_edit_hint"
+        style="@style/Ye.Text.LabelSmall"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginBottom="8dp"
-        android:text="순서를 바꿨어요 — 다시 계산하면 도착 시각과 혼잡도가 갱신됩니다"
-        android:textColor="@color/ye_on_surface_variant"
-        android:textSize="12sp"
-        android:visibility="gone" />
+        android:layout_marginHorizontal="@dimen/ye_gutter"
+        android:layout_marginBottom="@dimen/ye_space_xs"
+        android:text="@string/plan_edit_hint"
+        android:textColor="@color/ye_lv3"
+        android:visibility="gone"
+        tools:visibility="visible" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/planner_list"
@@ -94,46 +192,62 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:clipToPadding="false"
-        android:paddingBottom="8dp" />
+        android:paddingBottom="@dimen/ye_space_xs" />
 
-    <!-- 코스 편집 액션 -->
+    <!-- 제스처 안내: 처음 보는 사람은 드래그·스와이프가 되는지 모른다 -->
+    <TextView
+        android:id="@+id/planner_gesture_hint"
+        style="@style/Ye.Text.Caption"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:paddingBottom="@dimen/ye_space_xs"
+        android:text="@string/plan_gesture_hint" />
+
+    <!-- ── 하단 고정 액션 ── -->
     <LinearLayout
+        android:id="@+id/planner_actions"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingHorizontal="16dp"
-        android:paddingBottom="16dp">
+        android:background="@drawable/ye_bg_top_hairline"
+        android:orientation="vertical"
+        android:paddingHorizontal="@dimen/ye_gutter"
+        android:paddingTop="@dimen/ye_space_sm"
+        android:paddingBottom="@dimen/ye_space_sm">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/planner_recalc"
+                style="@style/Ye.Button.Tonal"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/ye_button_h"
+                android:layout_marginEnd="@dimen/ye_space_xs"
+                android:layout_weight="1"
+                android:enabled="false"
+                android:text="@string/plan_recalc"
+                app:icon="@drawable/ic_ye_refresh" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/planner_save"
+                style="@style/Ye.Button"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/ye_button_h"
+                android:layout_weight="1"
+                android:text="@string/plan_save"
+                app:icon="@drawable/ic_ye_bookmark" />
+        </LinearLayout>
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/planner_recalc"
-            style="@style/Widget.Material3.Button.TonalButton"
-            android:layout_width="0dp"
+            android:id="@+id/planner_notify"
+            style="@style/Ye.Button.Text"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginEnd="8dp"
-            android:enabled="false"
-            android:text="이 순서로 다시 계산"
-            android:textSize="13sp"
-            app:cornerRadius="16dp" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/planner_save"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="코스 저장"
-            android:textSize="13sp"
-            app:cornerRadius="16dp" />
+            android:layout_marginTop="@dimen/ye_space_2xs"
+            android:text="@string/plan_notify_on"
+            app:icon="@drawable/ic_ye_bell" />
     </LinearLayout>
-
-    <!-- 화면을 꺼도 급증을 알려주는 백그라운드 감시 토글 -->
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/planner_notify"
-        style="@style/Widget.Material3.Button.TextButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginBottom="12dp"
-        android:text="🔔 화면 꺼도 알림 받기"
-        android:textSize="13sp" />
 </LinearLayout>

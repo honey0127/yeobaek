@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 여백 스탬프 칩. 수집물이라 누를 일이 없다 — 표시 전용. -->
+<com.google.android.material.chip.Chip
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/Ye.Chip"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:checkable="false"
+    android:clickable="false"
+    android:focusable="false"
+    app:chipBackgroundColor="@color/ye_stamp_container"
+    app:chipIcon="@drawable/ic_ye_stamp"
+    app:chipIconTint="@color/ye_stamp"
+    app:chipIconVisible="true"
+    app:chipStrokeWidth="0dp"
+    tools:text="경복궁" />

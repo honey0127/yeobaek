@@ -1,17 +1,20 @@
 package com.example.crowdmap.yeobaek.ui
 
-import android.content.res.ColorStateList
-import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.crowdmap.R
 import com.example.crowdmap.yeobaek.data.District
+import com.example.crowdmap.yeobaek.ui.YeUi.tick
+import com.google.android.material.chip.Chip
 
-/** 지역구 가로 칩. 선택된 칩은 그린 채움. */
+/**
+ * 빠른 선택 지역 칩.
+ *
+ * 선택 상태는 Material Chip 의 checked 상태로 표현한다 — 예전처럼 코드에서 배경색과
+ * 글자색을 직접 칠하면 다크 테마·눌림 상태를 전부 손으로 관리해야 했다.
+ */
 class DistrictChipAdapter(
     private val onSelect: (District) -> Unit,
 ) : RecyclerView.Adapter<DistrictChipAdapter.VH>() {
@@ -29,7 +32,7 @@ class DistrictChipAdapter(
     }
 
     class VH(v: View) : RecyclerView.ViewHolder(v) {
-        val chip: TextView = v.findViewById(R.id.district_chip)
+        val chip: Chip = v.findViewById(R.id.district_chip)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
@@ -40,16 +43,12 @@ class DistrictChipAdapter(
 
     override fun onBindViewHolder(h: VH, position: Int) {
         val d = items[position]
-        val ctx = h.chip.context
         h.chip.text = d.name
-        val selected = d.key == selectedKey
-        val primary = ContextCompat.getColor(ctx, R.color.ye_primary)
-        val surface = ContextCompat.getColor(ctx, R.color.ye_surface)
-        h.chip.backgroundTintList =
-            ColorStateList.valueOf(if (selected) primary else surface)
-        h.chip.setTextColor(
-            if (selected) Color.WHITE else ContextCompat.getColor(ctx, R.color.ye_on_surface))
-        h.chip.setOnClickListener { onSelect(d) }
+        h.chip.isChecked = d.key == selectedKey
+        h.chip.setOnClickListener {
+            it.tick()
+            onSelect(d)
+        }
     }
 
     override fun getItemCount(): Int = items.size

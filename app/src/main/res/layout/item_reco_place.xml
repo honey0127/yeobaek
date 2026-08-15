@@ -1,54 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- '이 지역 추천' 가로 카드 한 장 -->
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- '이 지역 추천' 가로 카드 한 장. 혼잡 배지를 제목 옆이 아니라 위에 두어
+     스캔할 때 "한적한 곳"이 먼저 눈에 들어오게 했다. -->
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="210dp"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/Ye.Card"
+    android:layout_width="212dp"
     android:layout_height="wrap_content"
-    android:layout_marginEnd="10dp"
-    app:cardCornerRadius="16dp"
-    app:cardElevation="0dp"
-    app:strokeColor="@color/ye_outline"
-    app:strokeWidth="1dp"
-    app:cardBackgroundColor="@color/ye_surface">
+    android:layout_marginEnd="@dimen/ye_space_xs"
+    app:cardElevation="@dimen/ye_elev_raised">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="14dp">
+        android:padding="@dimen/ye_space_sm">
+
+        <TextView
+            android:id="@+id/reco_level"
+            style="@style/Ye.Badge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="여유" />
 
         <TextView
             android:id="@+id/reco_title"
+            style="@style/Ye.Text.TitleSmall"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:maxLines="1"
+            android:layout_marginTop="@dimen/ye_space_xs"
             android:ellipsize="end"
-            android:text="장소명"
-            android:textColor="@color/ye_on_surface"
-            android:textSize="15sp"
-            android:textStyle="bold" />
+            android:maxLines="1"
+            tools:text="창덕궁 후원" />
 
         <TextView
             android:id="@+id/reco_meta"
+            style="@style/Ye.Text.BodySmall"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="3dp"
-            android:maxLines="1"
+            android:layout_marginTop="@dimen/ye_space_3xs"
             android:ellipsize="end"
-            android:text="분류 · 0.0km"
-            android:textColor="@color/ye_on_surface_variant"
-            android:textSize="12sp" />
+            android:maxLines="1"
+            tools:text="고궁 · 0.8km" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/reco_add"
-            style="@style/Widget.Material3.Button.TonalButton"
+            style="@style/Ye.Button.Tonal.Compact"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:text="＋ 담기"
-            android:textSize="13sp"
-            android:minHeight="0dp"
-            android:paddingVertical="8dp"
-            app:cornerRadius="12dp" />
+            android:layout_marginTop="@dimen/ye_space_sm"
+            android:text="@string/district_pick"
+            app:icon="@drawable/ic_ye_add" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

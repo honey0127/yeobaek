@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 코스 타임라인의 정거장 점. 색은 코드에서 혼잡 레벨로 틴트한다. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <solid android:color="@color/ye_primary" />
+    <size android:width="14dp" android:height="14dp" />
+</shape>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 오프피크 타임라인 막대의 채움. 색은 혼잡 레벨에 따라 코드에서 틴트한다. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@color/ye_lv1" />
+    <corners android:radius="4dp" />
+</shape>

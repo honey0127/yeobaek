@@ -1,13 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- 검색 결과 한 줄. 오른쪽 꺾쇠가 '탭하면 다음 단계로 간다'는 걸 알려준다. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:gravity="center_vertical"
-    android:padding="16dp"
+    android:background="?attr/selectableItemBackground"
     android:clickable="true"
     android:focusable="true"
-    android:background="?attr/selectableItemBackground">
+    android:gravity="center_vertical"
+    android:minHeight="@dimen/ye_touch_min"
+    android:orientation="horizontal"
+    android:paddingHorizontal="@dimen/ye_gutter"
+    android:paddingVertical="@dimen/ye_space_sm">
+
+    <ImageView
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_marginEnd="@dimen/ye_space_sm"
+        android:background="@drawable/ye_bg_circle_tint"
+        android:backgroundTint="@color/ye_surface_variant"
+        android:importantForAccessibility="no"
+        android:padding="@dimen/ye_space_xs"
+        android:src="@drawable/ic_ye_place"
+        app:tint="@color/ye_on_surface_variant" />
 
     <LinearLayout
         android:layout_width="0dp"
@@ -17,28 +33,28 @@
 
         <TextView
             android:id="@+id/place_title"
-            android:layout_width="wrap_content"
+            style="@style/Ye.Text.TitleSmall"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="장소명"
-            android:textColor="@color/ye_on_surface"
-            android:textSize="16sp" />
+            android:ellipsize="end"
+            android:maxLines="1"
+            tools:text="경복궁" />
 
         <TextView
             android:id="@+id/place_meta"
+            style="@style/Ye.Text.BodySmall"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="카테고리 · 주소"
-            android:textColor="@color/ye_on_surface_variant"
-            android:textSize="12sp"
+            android:ellipsize="end"
             android:maxLines="1"
-            android:ellipsize="end" />
+            tools:text="고궁 · 서울 종로구 사직로 161" />
     </LinearLayout>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="＋ 추가"
-        android:textColor="@color/ye_primary"
-        android:textStyle="bold"
-        android:textSize="14sp" />
+    <ImageView
+        android:layout_width="@dimen/ye_icon_lg"
+        android:layout_height="@dimen/ye_icon_lg"
+        android:layout_marginStart="@dimen/ye_space_xs"
+        android:importantForAccessibility="no"
+        android:src="@drawable/ic_ye_chevron_right"
+        app:tint="@color/ye_on_surface_faint" />
 </LinearLayout>

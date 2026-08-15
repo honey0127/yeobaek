@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 최근 검색어 칩. 본문을 누르면 그 말로 다시 검색하고, ✕ 는 그 기록만 지운다. -->
+<com.google.android.material.chip.Chip
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/Ye.Chip"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:checkable="false"
+    app:chipIcon="@drawable/ic_ye_clock"
+    app:chipIconVisible="true"
+    app:closeIconVisible="true"
+    tools:text="경복궁" />

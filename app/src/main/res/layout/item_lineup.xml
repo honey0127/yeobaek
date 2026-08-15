@@ -1,75 +1,87 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 지역구 라인업 한 줄(명소 카드) -->
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- 기준 위치 주변 명소 한 줄. 왼쪽 번호는 '담은 순서'가 아니라 목록 순번(가까운 순)이다. -->
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/Ye.Card"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginHorizontal="16dp"
-    android:layout_marginBottom="10dp"
-    app:cardCornerRadius="16dp"
-    app:cardElevation="0dp"
-    app:strokeColor="@color/ye_outline"
-    app:strokeWidth="1dp"
-    app:cardBackgroundColor="@color/ye_surface">
+    android:layout_marginHorizontal="@dimen/ye_gutter"
+    android:layout_marginBottom="@dimen/ye_space_xs">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:padding="14dp">
+        android:orientation="horizontal"
+        android:padding="@dimen/ye_space_sm">
 
         <TextView
             android:id="@+id/lineup_index"
+            style="@style/Ye.Text.LabelSmall"
             android:layout_width="28dp"
             android:layout_height="28dp"
+            android:background="@drawable/ye_bg_circle_tint"
+            android:backgroundTint="@color/ye_surface_variant"
             android:gravity="center"
-            android:text="1"
-            android:textColor="@color/ye_on_primary_container"
-            android:textStyle="bold"
-            android:textSize="13sp"
-            android:background="@drawable/ye_reco_header_bg"
-            android:layout_marginEnd="12dp" />
+            android:importantForAccessibility="no"
+            android:textColor="@color/ye_on_surface_variant"
+            tools:text="1" />
 
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/ye_space_sm"
             android:layout_weight="1"
             android:orientation="vertical">
 
             <TextView
                 android:id="@+id/lineup_title"
+                style="@style/Ye.Text.TitleSmall"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:maxLines="1"
                 android:ellipsize="end"
-                android:text="명소명"
-                android:textColor="@color/ye_on_surface"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:maxLines="1"
+                tools:text="서울숲" />
 
-            <TextView
-                android:id="@+id/lineup_meta"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:maxLines="1"
-                android:ellipsize="end"
-                android:text="분류 · 0.0km"
-                android:textColor="@color/ye_on_surface_variant"
-                android:textSize="13sp" />
+                android:layout_marginTop="@dimen/ye_space_3xs"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/lineup_level"
+                    style="@style/Ye.Badge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/ye_space_2xs"
+                    android:paddingTop="2dp"
+                    android:paddingBottom="2dp"
+                    android:textSize="11sp"
+                    tools:text="여유" />
+
+                <TextView
+                    android:id="@+id/lineup_meta"
+                    style="@style/Ye.Text.BodySmall"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    tools:text="공원 · 0.6km" />
+            </LinearLayout>
         </LinearLayout>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/lineup_toggle"
-            style="@style/Widget.Material3.Button.TonalButton"
+            style="@style/Ye.Button.Tonal.Compact"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:text="＋ 담기"
-            android:textSize="13sp"
-            android:minWidth="0dp"
-            android:paddingHorizontal="14dp"
-            app:cornerRadius="12dp" />
+            android:layout_marginStart="@dimen/ye_space_xs"
+            android:text="@string/district_pick"
+            app:icon="@drawable/ic_ye_add" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

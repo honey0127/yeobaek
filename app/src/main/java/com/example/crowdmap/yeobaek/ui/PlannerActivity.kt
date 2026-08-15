@@ -11,7 +11,6 @@ import android.widget.FrameLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
@@ -33,8 +32,12 @@ import com.example.crowdmap.yeobaek.data.SurgeEvent
 import com.example.crowdmap.yeobaek.data.SurgeStream
 import com.example.crowdmap.yeobaek.data.YeobaekClient
 import com.example.crowdmap.yeobaek.service.SurgeMonitorService
+import com.example.crowdmap.yeobaek.ui.YeUi.applyInsets
+import com.example.crowdmap.yeobaek.ui.YeUi.edgeToEdge
+import com.example.crowdmap.yeobaek.ui.YeUi.showIf
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
@@ -62,12 +65,16 @@ class PlannerActivity : AppCompatActivity() {
     private lateinit var subText: TextView
     private lateinit var hintText: TextView
     private lateinit var editHint: TextView
+    private lateinit var gestureHint: TextView
+    private lateinit var indexBox: View
+    private lateinit var indexText: TextView
     private lateinit var alert: MaterialCardView
     private lateinit var alertText: TextView
     private lateinit var recycler: RecyclerView
     private lateinit var recalcBtn: MaterialButton
     private lateinit var saveBtn: MaterialButton
     private lateinit var notifyBtn: MaterialButton
+    private lateinit var shareBtn: View
 
     // 알림 권한(API 33+)은 서비스를 켜려는 순간에만 묻는다 — 화면 진입부터 묻지 않는다.
     private val notifyPermission = registerForActivityResult(
@@ -88,6 +95,7 @@ class PlannerActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        edgeToEdge()
         setContentView(R.layout.activity_yeobaek_planner)
 
         startTime = intent.getStringExtra(Extras.START_TIME) ?: ""
@@ -98,13 +106,22 @@ class PlannerActivity : AppCompatActivity() {
         subText = findViewById(R.id.planner_sub)
         hintText = findViewById(R.id.planner_hint)
         editHint = findViewById(R.id.planner_edit_hint)
+        gestureHint = findViewById(R.id.planner_gesture_hint)
+        indexBox = findViewById(R.id.planner_index_box)
+        indexText = findViewById(R.id.planner_index)
         alert = findViewById(R.id.planner_alert)
         alertText = findViewById(R.id.planner_alert_text)
         recycler = findViewById(R.id.planner_list)
         recalcBtn = findViewById(R.id.planner_recalc)
         saveBtn = findViewById(R.id.planner_save)
         notifyBtn = findViewById(R.id.planner_notify)
+        shareBtn = findViewById(R.id.planner_share)
         recycler.layoutManager = LinearLayoutManager(this)
+
+        // 상단 바는 상태바를, 하단 액션 바는 제스처 바를 피한다.
+        findViewById<View>(R.id.planner_bar).applyInsets(top = true)
+        findViewById<View>(R.id.planner_actions).applyInsets(bottom = true)
+        findViewById<View>(R.id.planner_back).setOnClickListener { finish() }
 
         val planJson = intent.getStringExtra(Extras.PLAN_JSON)
         // 서버가 안 뜬 상태(시연 중 사고 등)에서도 빈 화면을 보이지 않도록 마지막 계획으로 폴백.
@@ -113,11 +130,14 @@ class PlannerActivity : AppCompatActivity() {
             ?: PlanCache.load(this)
 
         if (plan == null || plan.ordered.isEmpty()) {
-            savedText.text = "코스를 만들지 못했습니다"
+            savedText.setText(R.string.plan_failed)
             subText.text = ""
+            indexBox.visibility = View.GONE
+            gestureHint.visibility = View.GONE
             recalcBtn.visibility = View.GONE
             saveBtn.visibility = View.GONE
             notifyBtn.visibility = View.GONE
+            shareBtn.visibility = View.GONE
             return
         }
         PlanCache.save(this, plan)
@@ -129,6 +149,7 @@ class PlannerActivity : AppCompatActivity() {
         recalcBtn.setOnClickListener { recalculate() }
         saveBtn.setOnClickListener { saveCourse() }
         notifyBtn.setOnClickListener { toggleBackgroundAlerts() }
+        shareBtn.setOnClickListener { shareCourse() }
 
         render(plan)
     }
@@ -156,6 +177,11 @@ class PlannerActivity : AppCompatActivity() {
             subText.text = "${plan.ordered.size}곳 · 혼잡도 예측으로 순서 자동 조정"
         }
 
+        // 여백 지수 — 이 계획의 단일 점수. 서버가 안 주면(구버전) 칸 자체를 숨긴다.
+        val index = plan.yeobaekIndex
+        indexBox.showIf(index != null)
+        if (index != null) indexText.text = index.toString()
+
         // 역방향/엇갈림 동선 힌트(모듈: counter-flow) — 자동 재배치로 혼잡을 회피했을 때
         if (!keepOrder && plan.savedCongestionPct > 0) {
             hintText.visibility = View.VISIBLE
@@ -164,8 +190,39 @@ class PlannerActivity : AppCompatActivity() {
             hintText.visibility = View.GONE
         }
 
+        // 정거장이 하나면 바꿀 순서가 없다 — 제스처 안내를 띄우지 않는다.
+        gestureHint.showIf(plan.ordered.size > 1)
+
         setDirty(false)
         startSurgeMonitor(adapter.items())
+    }
+
+    /**
+     * 코스를 글로 공유한다.
+     *
+     * 이미지 공유는 대안 카드에만 있어서, 정작 "완성된 하루 코스"를 친구에게 보낼 방법이
+     * 없었다. 도착 시각·혼잡도까지 담은 텍스트라 메신저에 그대로 붙여 넣을 수 있다.
+     */
+    private fun shareCourse() {
+        val stops = adapter.items()
+        if (stops.isEmpty()) return
+        val body = buildString {
+            append("여백으로 짠 하루 코스\n")
+            currentPlan?.yeobaekIndex?.let { append("여백 지수 $it\n") }
+            append("\n")
+            stops.forEachIndexed { i, s ->
+                append("${i + 1}. ${s.arrival}  ${s.title}  (${Congestion.label(s.forecastLevel)})\n")
+            }
+        }
+        startActivity(
+            Intent.createChooser(
+                Intent(Intent.ACTION_SEND).apply {
+                    type = "text/plain"
+                    putExtra(Intent.EXTRA_TEXT, body)
+                },
+                getString(R.string.plan_share)
+            )
+        )
     }
 
     /** 편집됨 = 화면의 도착시각·혼잡도가 서버 계산과 어긋난 상태. */
@@ -239,7 +296,7 @@ class PlannerActivity : AppCompatActivity() {
     private fun setBusy(busy: Boolean) {
         recalcBtn.isEnabled = !busy
         saveBtn.isEnabled = !busy
-        recalcBtn.text = if (busy) "계산 중…" else "이 순서로 다시 계산"
+        recalcBtn.setText(if (busy) R.string.plan_recalculating else R.string.plan_recalc)
     }
 
     // ── 보관함 저장 ───────────────────────────────────────────────────────────
@@ -259,8 +316,8 @@ class PlannerActivity : AppCompatActivity() {
             addView(input)
         }
 
-        AlertDialog.Builder(this)
-            .setTitle("코스 저장")
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.plan_save)
             .setView(box)
             .setPositiveButton("저장") { _, _ ->
                 val name = input.text.toString().trim().ifEmpty { CourseStore.defaultName(titles) }
@@ -314,11 +371,8 @@ class PlannerActivity : AppCompatActivity() {
     /** @param forceOn 서비스가 막 시작돼 running 플래그가 아직 안 올라온 순간을 위한 낙관적 표시. */
     private fun updateNotifyButton(forceOn: Boolean = false) {
         if (!::notifyBtn.isInitialized) return
-        notifyBtn.text = if (forceOn || SurgeMonitorService.running) {
-            "🔔 백그라운드 감시 중 · 끄기"
-        } else {
-            "🔔 화면 꺼도 알림 받기"
-        }
+        val on = forceOn || SurgeMonitorService.running
+        notifyBtn.setText(if (on) R.string.plan_notify_off else R.string.plan_notify_on)
     }
 
     // ── 실시간 급증 감시(모듈4) ───────────────────────────────────────────────

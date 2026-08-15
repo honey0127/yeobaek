@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  홈 시트의 '담은 장소' 칩. 코드에서 new Chip(context) 로 만들면 테마의 기본 칩 스타일이
+  붙어 삭제(×) 칩처럼 보이지 않는다 — 그래서 레이아웃으로 두고 inflate 해서 쓴다.
+-->
+<com.google.android.material.chip.Chip
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/Ye.Chip.Input"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:checkable="false"
+    tools:text="경복궁" />

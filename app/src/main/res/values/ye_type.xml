@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  여백 타이포 스케일.
+
+  화면마다 15sp/13sp/12sp/11sp/10sp/9sp 를 즉흥으로 쓰면 위계가 사라진다.
+  아래 7단계만 쓴다. 한글은 라틴보다 글자 밀도가 높아서
+    · 큰 제목은 자간을 살짝 좁히고(-0.01~-0.02)
+    · 본문은 행간을 넉넉히(1.4~1.5배) 준다.
+  점(.) 이름 규칙 덕분에 Ye.Text.* 는 Ye.Text 를 자동 상속한다.
+-->
+<resources>
+
+    <style name="Ye.Text">
+        <item name="android:textColor">@color/ye_on_surface</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
+    <!-- 화면 하나에 하나뿐인 최상위 제목(마이페이지 "내 여백" 등) -->
+    <style name="Ye.Text.Display">
+        <item name="android:textSize">30sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">-0.02</item>
+    </style>
+
+    <style name="Ye.Text.Headline">
+        <item name="android:textSize">24sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">-0.02</item>
+    </style>
+
+    <style name="Ye.Text.Title">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">-0.01</item>
+    </style>
+
+    <!-- 카드 제목 · 목록 항목 이름 -->
+    <style name="Ye.Text.TitleSmall">
+        <item name="android:textSize">16sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:letterSpacing">-0.01</item>
+    </style>
+
+    <style name="Ye.Text.Body">
+        <item name="android:textSize">15sp</item>
+        <item name="android:lineSpacingMultiplier">1.45</item>
+    </style>
+
+    <style name="Ye.Text.BodySmall">
+        <item name="android:textSize">13sp</item>
+        <item name="android:lineSpacingMultiplier">1.4</item>
+        <item name="android:textColor">@color/ye_on_surface_variant</item>
+    </style>
+
+    <!-- 버튼·칩처럼 눌리는 것의 글자 -->
+    <style name="Ye.Text.Label">
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:letterSpacing">0</item>
+    </style>
+
+    <style name="Ye.Text.LabelSmall">
+        <item name="android:textSize">12sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textColor">@color/ye_on_surface_variant</item>
+    </style>
+
+    <!-- 보조 설명 · 출처 · 단위 -->
+    <style name="Ye.Text.Caption">
+        <item name="android:textSize">11sp</item>
+        <item name="android:textColor">@color/ye_on_surface_faint</item>
+    </style>
+
+    <!-- 섹션 구분 라벨("저장한 코스", "빠른 선택" …) -->
+    <style name="Ye.Text.Section">
+        <item name="android:textSize">13sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textColor">@color/ye_on_surface_variant</item>
+        <item name="android:letterSpacing">0.02</item>
+    </style>
+
+</resources>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 로딩 자리표시(스켈레톤) 블록. 스피너 하나보다 '무엇이 올지'를 먼저 보여준다. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@color/ye_skeleton" />
+    <corners android:radius="@dimen/ye_radius_xs" />
+</shape>

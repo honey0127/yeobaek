@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 여백 아이콘 — 보관. 라인아트 24dp / stroke 1.8. 색은 tint 로 지정한다. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:pathData="M7,4.2 L17,4.2 A1.4,1.4 0 0,1 18.4,5.6 L18.4,20 L12,15.8 L5.6,20 L5.6,5.6 A1.4,1.4 0 0,1 7,4.2 Z"
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="?attr/colorOnSurfaceVariant"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+</vector>

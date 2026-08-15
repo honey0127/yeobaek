@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  칩 배경(상태별).
+
+  지도 위에 뜨는 칩은 Material 기본값(선택 안 됐을 때 투명)을 쓰면 지도가 비쳐 글자가
+  안 읽힌다. 그래서 선택 전에는 표면색으로 확실히 덮고, 선택되면 브랜드 틴트로 바꾼다.
+-->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="@color/ye_surface_variant" android:state_enabled="false" />
+    <item android:color="@color/ye_primary_container" android:state_checked="true" />
+    <item android:color="@color/ye_surface" />
+</selector>

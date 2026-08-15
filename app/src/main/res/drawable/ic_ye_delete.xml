@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 여백 아이콘 — 삭제. 라인아트 24dp / stroke 1.8. 색은 tint 로 지정한다. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:pathData="M4.8,7 L19.2,7"
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="?attr/colorOnSurfaceVariant"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+    <path
+        android:pathData="M9.6,7 L9.6,4.6 L14.4,4.6 L14.4,7"
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="?attr/colorOnSurfaceVariant"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+    <path
+        android:pathData="M6.4,7 L7.4,19.6 L16.6,19.6 L17.6,7"
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="?attr/colorOnSurfaceVariant"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+    <path
+        android:pathData="M10.2,10.6 L10.2,16.2"
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="?attr/colorOnSurfaceVariant"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+    <path
+        android:pathData="M13.8,10.6 L13.8,16.2"
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="?attr/colorOnSurfaceVariant"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+</vector>

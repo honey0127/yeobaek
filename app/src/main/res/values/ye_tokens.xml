@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  여백 디자인 토큰 — 여백(spacing) · 라운딩 · 고도 · 아이콘 크기.
+
+  화면마다 14dp/22dp/3dp 같은 값을 즉흥으로 쓰면 "비슷한데 미묘하게 어긋난" 느낌이 남는다.
+  모든 레이아웃은 아래 토큰만 쓴다. 새 값이 필요하면 여기에 이름을 붙여서 추가할 것.
+-->
+<resources>
+
+    <!-- ── 여백: 4dp 배수 스케일 ── -->
+    <dimen name="ye_space_3xs">2dp</dimen>
+    <dimen name="ye_space_2xs">4dp</dimen>
+    <dimen name="ye_space_xs">8dp</dimen>
+    <dimen name="ye_space_sm">12dp</dimen>
+    <dimen name="ye_space_md">16dp</dimen>
+    <dimen name="ye_space_lg">20dp</dimen>
+    <dimen name="ye_space_xl">24dp</dimen>
+    <dimen name="ye_space_2xl">32dp</dimen>
+    <dimen name="ye_space_3xl">40dp</dimen>
+
+    <!-- 화면 좌우 기본 마진. 모든 전체폭 화면이 이 값을 공유해 세로선이 맞는다. -->
+    <dimen name="ye_gutter">20dp</dimen>
+
+    <!-- ── 라운딩: 작은 요소일수록 작게(중첩됐을 때 동심원이 되도록) ── -->
+    <dimen name="ye_radius_xs">10dp</dimen>
+    <dimen name="ye_radius_sm">14dp</dimen>
+    <dimen name="ye_radius_md">18dp</dimen>
+    <dimen name="ye_radius_lg">24dp</dimen>
+    <dimen name="ye_radius_xl">28dp</dimen>
+    <dimen name="ye_radius_pill">999dp</dimen>
+
+    <!-- ── 선 · 고도 ──
+         이 앱은 그림자를 남발하지 않는다. 기본은 1dp 헤어라인이고,
+         '떠 있어야 하는' 요소(검색바·시트·FAB)만 그림자를 쓴다. -->
+    <dimen name="ye_stroke">1dp</dimen>
+    <dimen name="ye_elev_flat">0dp</dimen>
+    <dimen name="ye_elev_raised">2dp</dimen>
+    <dimen name="ye_elev_float">8dp</dimen>
+    <dimen name="ye_elev_sheet">16dp</dimen>
+
+    <!-- ── 크기 ── -->
+    <!-- 손가락으로 누르는 것은 무엇이든 48dp 이상(접근성 최소 터치 타깃). -->
+    <dimen name="ye_touch_min">48dp</dimen>
+    <dimen name="ye_icon_sm">16dp</dimen>
+    <dimen name="ye_icon_md">20dp</dimen>
+    <dimen name="ye_icon_lg">24dp</dimen>
+    <dimen name="ye_icon_xl">28dp</dimen>
+
+    <dimen name="ye_button_h">52dp</dimen>
+    <dimen name="ye_button_h_sm">40dp</dimen>
+
+    <!-- 홈 하단 시트가 접혔을 때 보이는 높이의 **초기값**.
+         실제 값은 YeobaekHomeActivity.updateSheetPeek 이 '손잡이 + 요약 줄'의 측정 높이에
+         내비바 높이를 더해 다시 계산한다(글꼴 크기·제스처 바에 따라 달라지므로). -->
+    <dimen name="ye_sheet_peek">116dp</dimen>
+
+    <!-- 접힌 시트 위에 떠야 하는 지도 오버레이(혼잡 범례)의 하단 마진.
+         마찬가지로 peek 계산이 끝나면 그 값으로 대체된다. -->
+    <dimen name="ye_map_overlay_bottom">128dp</dimen>
+
+</resources>

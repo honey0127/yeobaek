@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 바텀시트 드래그 핸들 -->
+<!-- 바텀시트 드래그 손잡이 -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
-    <solid android:color="@color/ye_outline" />
+    <solid android:color="@color/ye_outline_strong" />
     <corners android:radius="3dp" />
-    <size android:width="40dp" android:height="5dp" />
+    <size android:width="36dp" android:height="4dp" />
 </shape>

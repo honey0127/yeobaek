@@ -1,134 +1,315 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<!--
+  내 여백 — 지금까지 쌓인 것(포인트·배지·저장한 코스·찜·스탬프)을 한 화면에.
+
+  맨 위 요약 카드 아래에 숫자 타일 3개를 두어, 스크롤하기 전에 "내가 뭘 얼마나 모았는지"가
+  한눈에 들어오게 했다.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/my_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/ye_background"
-    android:fillViewport="true">
+    android:orientation="vertical">
 
     <LinearLayout
+        android:id="@+id/my_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingHorizontal="16dp"
-        android:paddingTop="16dp"
-        android:paddingBottom="24dp">
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/ye_space_xs"
+        android:paddingTop="@dimen/ye_space_xs"
+        android:paddingEnd="@dimen/ye_gutter"
+        android:paddingBottom="@dimen/ye_space_xs">
 
-        <!-- NoActionBar 테마라 화면 제목은 레이아웃이 직접 그린다 -->
+        <ImageButton
+            android:id="@+id/my_back"
+            android:layout_width="@dimen/ye_touch_min"
+            android:layout_height="@dimen/ye_touch_min"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/ye_back"
+            android:padding="@dimen/ye_space_sm"
+            android:src="@drawable/ic_ye_arrow_back"
+            app:tint="@color/ye_on_surface" />
+
         <TextView
-            android:layout_width="wrap_content"
+            style="@style/Ye.Text.TitleSmall"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:text="내 여백"
-            android:textColor="@color/ye_on_surface"
-            android:textSize="26sp"
-            android:textStyle="bold" />
+            android:layout_marginStart="@dimen/ye_space_2xs"
+            android:layout_weight="1"
+            android:text="@string/my_title" />
+    </LinearLayout>
 
-        <!-- 에코 트래블러 요약 -->
-        <com.google.android.material.card.MaterialCardView
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/my_scroll"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:fillViewport="true">
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardBackgroundColor="@color/ye_primary_container"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="0dp">
+            android:orientation="vertical"
+            android:paddingHorizontal="@dimen/ye_gutter"
+            android:paddingBottom="@dimen/ye_space_2xl">
 
+            <!-- ── 에코 트래블러 요약 ── -->
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Ye.Card.Brand"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/ye_space_lg">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_width="@dimen/ye_icon_xl"
+                            android:layout_height="@dimen/ye_icon_xl"
+                            android:importantForAccessibility="no"
+                            android:src="@drawable/ic_ye_eco"
+                            app:tint="@color/ye_on_primary_container" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/ye_space_sm"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/my_badge"
+                                style="@style/Ye.Text.Title"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/ye_on_primary_container"
+                                tools:text="에코 트래블러" />
+
+                            <TextView
+                                android:id="@+id/my_points"
+                                style="@style/Ye.Text.BodySmall"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/ye_on_primary_container"
+                                tools:text="240 포인트" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <ProgressBar
+                        android:id="@+id/my_progress"
+                        style="?android:attr/progressBarStyleHorizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="6dp"
+                        android:layout_marginTop="@dimen/ye_space_md"
+                        android:max="100"
+                        android:progress="0"
+                        android:progressBackgroundTint="@color/ye_surface"
+                        android:progressTint="@color/ye_primary"
+                        tools:progress="40" />
+
+                    <TextView
+                        android:id="@+id/my_next_badge"
+                        style="@style/Ye.Text.Caption"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/ye_space_xs"
+                        android:textColor="@color/ye_on_primary_container"
+                        tools:text="다음 배지까지 260포인트" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ── 숫자 타일 ── -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="20dp">
+                android:layout_marginTop="@dimen/ye_space_sm"
+                android:orientation="horizontal">
 
-                <TextView
-                    android:id="@+id/my_badge"
-                    android:layout_width="wrap_content"
+                <com.google.android.material.card.MaterialCardView
+                    style="@style/Ye.Card"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="입문 여행자"
-                    android:textColor="@color/ye_on_primary_container"
-                    android:textSize="24sp"
-                    android:textStyle="bold" />
+                    android:layout_weight="1">
 
-                <TextView
-                    android:id="@+id/my_points"
-                    android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:paddingVertical="@dimen/ye_space_sm">
+
+                        <TextView
+                            android:id="@+id/my_stat_courses"
+                            style="@style/Ye.Text.Title"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            tools:text="3" />
+
+                        <TextView
+                            style="@style/Ye.Text.Caption"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/my_courses" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    style="@style/Ye.Card"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="🌱 0 포인트"
-                    android:textColor="@color/ye_on_primary_container"
-                    android:textSize="13sp" />
+                    android:layout_marginStart="@dimen/ye_space_xs"
+                    android:layout_weight="1">
 
-                <ProgressBar
-                    android:id="@+id/my_progress"
-                    style="?android:attr/progressBarStyleHorizontal"
-                    android:layout_width="match_parent"
-                    android:layout_height="6dp"
-                    android:layout_marginTop="12dp"
-                    android:max="100"
-                    android:progress="0"
-                    android:progressTint="@color/ye_primary" />
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:paddingVertical="@dimen/ye_space_sm">
 
-                <TextView
-                    android:id="@+id/my_next_badge"
-                    android:layout_width="wrap_content"
+                        <TextView
+                            android:id="@+id/my_stat_favs"
+                            style="@style/Ye.Text.Title"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            tools:text="7" />
+
+                        <TextView
+                            style="@style/Ye.Text.Caption"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/my_favorites" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    style="@style/Ye.Card"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:text=""
-                    android:textColor="@color/ye_on_primary_container"
-                    android:textSize="11sp" />
+                    android:layout_marginStart="@dimen/ye_space_xs"
+                    android:layout_weight="1">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:paddingVertical="@dimen/ye_space_sm">
+
+                        <TextView
+                            android:id="@+id/my_stat_stamps"
+                            style="@style/Ye.Text.Title"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            tools:text="12" />
+
+                        <TextView
+                            style="@style/Ye.Text.Caption"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/my_stamps" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
 
-        <!-- 저장한 코스 -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:layout_marginBottom="10dp"
-            android:text="저장한 코스"
-            android:textColor="@color/ye_on_surface"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+            <!-- ── 저장한 코스 ── -->
+            <TextView
+                style="@style/Ye.Text.Section"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/ye_space_xl"
+                android:layout_marginBottom="@dimen/ye_space_xs"
+                android:text="@string/my_courses" />
 
-        <TextView
-            android:id="@+id/my_courses_empty"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:text="아직 저장한 코스가 없어요.\n플래너에서 ‘코스 저장’을 누르면 여기에 쌓입니다."
-            android:textColor="@color/ye_on_surface_variant"
-            android:textSize="13sp"
-            android:visibility="gone" />
+            <TextView
+                android:id="@+id/my_courses_empty"
+                style="@style/Ye.Text.BodySmall"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/my_courses_empty"
+                android:visibility="gone"
+                tools:visibility="visible" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/my_courses"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:nestedScrollingEnabled="false" />
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/my_courses"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false" />
 
-        <!-- 여백 스탬프 -->
-        <TextView
-            android:id="@+id/my_stamps_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:layout_marginBottom="10dp"
-            android:text="여백 스탬프"
-            android:textColor="@color/ye_on_surface"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+            <!-- ── 찜한 장소 ── -->
+            <TextView
+                android:id="@+id/my_favorites_title"
+                style="@style/Ye.Text.Section"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/ye_space_xl"
+                android:layout_marginBottom="@dimen/ye_space_xs"
+                android:text="@string/my_favorites" />
 
-        <TextView
-            android:id="@+id/my_stamps_empty"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="지도에서 장소를 담으면 스탬프가 찍혀요."
-            android:textColor="@color/ye_on_surface_variant"
-            android:textSize="13sp"
-            android:visibility="gone" />
+            <TextView
+                android:id="@+id/my_favorites_empty"
+                style="@style/Ye.Text.BodySmall"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/my_favorites_empty"
+                android:visibility="gone"
+                tools:visibility="visible" />
 
-        <com.google.android.material.chip.ChipGroup
-            android:id="@+id/my_stamps"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:chipSpacingVertical="2dp" />
-    </LinearLayout>
-</androidx.core.widget.NestedScrollView>
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/my_favorites"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/my_fav_make"
+                style="@style/Ye.Button.Tonal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/ye_space_xs"
+                android:text="@string/my_favorites_make"
+                android:visibility="gone"
+                app:icon="@drawable/ic_ye_route"
+                tools:visibility="visible" />
+
+            <!-- ── 여백 스탬프 ── -->
+            <TextView
+                android:id="@+id/my_stamps_title"
+                style="@style/Ye.Text.Section"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/ye_space_xl"
+                android:layout_marginBottom="@dimen/ye_space_xs"
+                android:text="@string/my_stamps" />
+
+            <TextView
+                android:id="@+id/my_stamps_empty"
+                style="@style/Ye.Text.BodySmall"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/my_stamps_empty"
+                android:visibility="gone"
+                tools:visibility="visible" />
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/my_stamps"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:chipSpacingVertical="@dimen/ye_space_3xs" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</LinearLayout>

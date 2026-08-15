@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- '이 지역 추천' 헤더 알약 배경 -->
+<!-- 브랜드 틴트 알약(추천 헤더처럼 '지금 뭔가 제안 중'인 상태). -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
     <solid android:color="@color/ye_primary_container" />
-    <corners android:radius="20dp" />
+    <corners android:radius="@dimen/ye_radius_pill" />
 </shape>

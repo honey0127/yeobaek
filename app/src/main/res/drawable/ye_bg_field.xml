@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 날짜/시각처럼 '눌러서 고르는 값' 필드. 입력창이 아니라 버튼에 가깝게 보이도록. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@color/ye_surface_variant" />
+    <corners android:radius="@dimen/ye_radius_sm" />
+</shape>

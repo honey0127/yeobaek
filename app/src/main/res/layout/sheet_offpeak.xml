@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  '덜 붐비는 시간' 시트.
+
+  예전에는 추천 시각 3개를 AlertDialog 에 줄글로 보여줬다. 서버는 이미 앞으로 12시간의
+  혼잡 타임라인을 통째로 주고 있었는데(OffpeakResponse.timeline) 화면에서 버리고 있었던 것.
+  이제 하루의 혼잡 흐름을 막대로 보여주고, 원하는 시각을 골라 **출발 시각으로 바로 반영**한다.
+-->
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingBottom="@dimen/ye_space_xl">
+
+        <View
+            android:layout_width="36dp"
+            android:layout_height="4dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/ye_space_sm"
+            android:layout_marginBottom="@dimen/ye_space_md"
+            android:background="@drawable/ye_handle" />
+
+        <TextView
+            android:id="@+id/offpeak_title"
+            style="@style/Ye.Text.Title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="@dimen/ye_gutter"
+            tools:text="‘경복궁’ 덜 붐비는 시간" />
+
+        <TextView
+            android:id="@+id/offpeak_source"
+            style="@style/Ye.Text.Caption"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/ye_space_2xs"
+            android:paddingHorizontal="@dimen/ye_gutter"
+            tools:text="서울 실시간 도시데이터 · 광화문·덕수궁" />
+
+        <!-- ── 추천 시각 ── -->
+        <TextView
+            android:id="@+id/offpeak_best_label"
+            style="@style/Ye.Text.Section"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/ye_space_lg"
+            android:paddingHorizontal="@dimen/ye_gutter"
+            android:text="@string/offpeak_best" />
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/offpeak_best"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/ye_space_xs"
+            android:paddingHorizontal="@dimen/ye_gutter"
+            app:chipSpacingHorizontal="@dimen/ye_space_xs"
+            app:selectionRequired="false"
+            app:singleSelection="true" />
+
+        <!-- ── 12시간 흐름 ── -->
+        <TextView
+            android:id="@+id/offpeak_timeline_label"
+            style="@style/Ye.Text.Section"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/ye_space_lg"
+            android:paddingHorizontal="@dimen/ye_gutter"
+            android:text="@string/offpeak_timeline" />
+
+        <HorizontalScrollView
+            android:id="@+id/offpeak_scroll"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/ye_space_xs"
+            android:clipToPadding="false"
+            android:paddingHorizontal="@dimen/ye_gutter"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:id="@+id/offpeak_bars"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" />
+        </HorizontalScrollView>
+
+        <!-- 선택한 막대의 상세 근거(서울시 원본 예보 값) -->
+        <TextView
+            android:id="@+id/offpeak_detail"
+            style="@style/Ye.Text.BodySmall"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/ye_space_sm"
+            android:paddingHorizontal="@dimen/ye_gutter"
+            tools:text="14:00 · 여유 · 예상 인구 3,000~5,000명" />
+
+        <TextView
+            android:id="@+id/offpeak_empty"
+            style="@style/Ye.Text.BodySmall"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/ye_space_sm"
+            android:paddingHorizontal="@dimen/ye_gutter"
+            android:text="@string/offpeak_none"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/offpeak_apply"
+            style="@style/Ye.Button"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/ye_button_h"
+            android:layout_marginTop="@dimen/ye_space_lg"
+            android:layout_marginHorizontal="@dimen/ye_gutter"
+            android:enabled="false"
+            android:text="@string/offpeak_apply"
+            app:icon="@drawable/ic_ye_check" />
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>
