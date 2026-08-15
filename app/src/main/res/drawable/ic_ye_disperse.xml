@@ -1,57 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 여백 아이콘 — 주변 분산. 라인아트 24dp / stroke 1.8. 색은 tint 로 지정한다. -->
+<!-- 여백 아이콘 — 주변 분산(도보권의 더 한적한 대안). 라인아트 24dp / stroke 1.8.
+     가운데 점 = 지금 보고 있는 장소, 바깥 점들 = 그 주변의 다른 선택지.
+     ic_ye_share 와 헷갈리지 않도록 '연결선'이 아니라 '반경'으로 그린다. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"
     android:height="24dp"
     android:viewportWidth="24"
     android:viewportHeight="24">
     <path
-        android:pathData="M10.8,8 A2.8,2.8 0 1,1 5.2,8 A2.8,2.8 0 1,1 10.8,8"
+        android:pathData="M18.0,12.0 A6.0,6.0 0 1,1 6.0,12.0 A6.0,6.0 0 1,1 18.0,12.0"
         android:fillColor="@android:color/transparent"
         android:strokeColor="?attr/colorOnSurfaceVariant"
         android:strokeWidth="1.8"
         android:strokeLineCap="round"
         android:strokeLineJoin="round" />
     <path
-        android:pathData="M19.0,6.8 A1.8,1.8 0 1,1 15.399999999999999,6.8 A1.8,1.8 0 1,1 19.0,6.8"
-        android:fillColor="@android:color/transparent"
-        android:strokeColor="?attr/colorOnSurfaceVariant"
-        android:strokeWidth="1.8"
-        android:strokeLineCap="round"
-        android:strokeLineJoin="round" />
+        android:pathData="M14.2,12.0 A2.2,2.2 0 1,1 9.8,12.0 A2.2,2.2 0 1,1 14.2,12.0"
+        android:fillColor="?attr/colorOnSurfaceVariant" />
     <path
-        android:pathData="M19.400000000000002,15.8 A1.8,1.8 0 1,1 15.8,15.8 A1.8,1.8 0 1,1 19.400000000000002,15.8"
-        android:fillColor="@android:color/transparent"
-        android:strokeColor="?attr/colorOnSurfaceVariant"
-        android:strokeWidth="1.8"
-        android:strokeLineCap="round"
-        android:strokeLineJoin="round" />
+        android:pathData="M18.25,3.77 A1.5,1.5 0 1,1 15.25,3.77 A1.5,1.5 0 1,1 18.25,3.77"
+        android:fillColor="?attr/colorOnSurfaceVariant" />
     <path
-        android:pathData="M9.200000000000001,17.2 A1.8,1.8 0 1,1 5.6000000000000005,17.2 A1.8,1.8 0 1,1 9.200000000000001,17.2"
-        android:fillColor="@android:color/transparent"
-        android:strokeColor="?attr/colorOnSurfaceVariant"
-        android:strokeWidth="1.8"
-        android:strokeLineCap="round"
-        android:strokeLineJoin="round" />
+        android:pathData="M18.25,20.23 A1.5,1.5 0 1,1 15.25,20.23 A1.5,1.5 0 1,1 18.25,20.23"
+        android:fillColor="?attr/colorOnSurfaceVariant" />
     <path
-        android:pathData="M10.5,9.6 L15.6,14.4"
-        android:fillColor="@android:color/transparent"
-        android:strokeColor="?attr/colorOnSurfaceVariant"
-        android:strokeWidth="1.8"
-        android:strokeLineCap="round"
-        android:strokeLineJoin="round" />
-    <path
-        android:pathData="M10.7,7.4 L15.4,7.0"
-        android:fillColor="@android:color/transparent"
-        android:strokeColor="?attr/colorOnSurfaceVariant"
-        android:strokeWidth="1.8"
-        android:strokeLineCap="round"
-        android:strokeLineJoin="round" />
-    <path
-        android:pathData="M7.8,10.8 L7.5,15.4"
-        android:fillColor="@android:color/transparent"
-        android:strokeColor="?attr/colorOnSurfaceVariant"
-        android:strokeWidth="1.8"
-        android:strokeLineCap="round"
-        android:strokeLineJoin="round" />
+        android:pathData="M4.0,12.0 A1.5,1.5 0 1,1 1.0,12.0 A1.5,1.5 0 1,1 4.0,12.0"
+        android:fillColor="?attr/colorOnSurfaceVariant" />
 </vector>

@@ -11,7 +11,7 @@
     android:viewportHeight="108">
     <!-- 트인 고리 -->
     <path
-        android:pathData="M64.5,35.81 A21,21 0 1,1 43.5,35.81"
+        android:pathData="M74.28,48.57 A21,21 0 1,1 59.43,33.72"
         android:fillColor="@android:color/transparent"
         android:strokeColor="#FFF1F7F6"
         android:strokeWidth="7"
