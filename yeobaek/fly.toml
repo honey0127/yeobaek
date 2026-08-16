@@ -1,6 +1,10 @@
 # Fly.io 배포 설정. 앱 이름은 최초 `flyctl launch` 시 고유해야 하므로 필요하면 바꿀 것 —
 # 그러면 서비스 주소도 https://<app 이름>.fly.dev 로 함께 바뀐다.
-app = "yeobaek-api"
+#
+# `yeobaek-api` 는 이미 제3자가 선점하고 있다(그 주소로 요청하면 남의 서버가 응답한다).
+# 그래서 `flyctl launch` 가 접미사를 붙여 만든 아래 이름을 쓴다. 이름을 바꾸려면
+# 여기와 local.properties 의 DEV_BASE_URL/PROD_BASE_URL 을 **반드시 함께** 고칠 것.
+app = "yeobaek-api-plucky-voice-2925"
 primary_region = "nrt"   # 도쿄 — 한국에서 가장 가까운 Fly 리전(서울 리전 없음)
 
 [build]

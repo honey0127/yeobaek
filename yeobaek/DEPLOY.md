@@ -58,9 +58,14 @@ cd yeobaek
 flyctl launch --no-deploy     # fly.toml 이 이미 있으므로 "기존 설정을 쓸까?" 에 Yes
 ```
 
-`yeobaek-api` 라는 이름을 다른 사람이 이미 쓰고 있으면 실패한다 —
-그러면 `fly.toml` 의 `app = "yeobaek-api"` 를 다른 이름(예: `yeobaek-api-honey0127`)으로
-바꾸고 다시 실행한다. **배포 주소도 `https://<바꾼 이름>.fly.dev` 로 함께 바뀐다.**
+**`yeobaek-api` 는 이미 제3자가 선점했다.** 그래서 `flyctl launch` 가 접미사를 붙인
+`yeobaek-api-plucky-voice-2925` 로 앱이 만들어졌고, `fly.toml` 도 그 이름을 쓴다.
+**배포 주소는 `https://yeobaek-api-plucky-voice-2925.fly.dev` 다.**
+
+이름을 바꾸고 싶으면 `fly.toml` 의 `app` 과 `local.properties` 의
+`DEV_BASE_URL`/`PROD_BASE_URL` 을 **반드시 함께** 고쳐야 한다. 한쪽만 고치면 앱이
+엉뚱한 서버(남의 `yeobaek-api`)에 붙는데, 그쪽도 `/health` 에 200 을 주기 때문에
+"서버는 살아있는데 장소만 안 뜨는" 형태로 나타나 원인 찾기가 어렵다.
 
 ## 3) API 키 주입 (이미지에는 절대 넣지 않는다)
 
@@ -95,6 +100,8 @@ curl https://<앱 이름>.fly.dev/health
 
 체크 포인트:
 
+- **`{"status":"ok"}` 만 오고 나머지 필드가 없다** → 우리 서버가 아니다. 주소를 잘못 봤다는
+  뜻이다(선점당한 `yeobaek-api.fly.dev` 등). `fly.toml` 의 `app` 이름과 대조할 것.
 - `engine_available: false` → C++ 엔진 빌드 실패. `flyctl logs` 로 원인 확인.
 - `places_loaded: 0` → 데이터 없는 이미지가 올라갔다. 위 '⚠ 먼저 알아야 할 것' 참고.
 - `seoul_api_key_set: false` → 3) 시크릿 주입을 건너뛴 것.
