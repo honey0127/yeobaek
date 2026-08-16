@@ -159,7 +159,7 @@
     <!-- ════ 혼잡 배지 ════
          배경 색은 코드에서 backgroundTintList 로, 글자색은 setTextColor 로 넣는다
          (레벨별 색 + 다크 테마 대응). 여기서는 모양만 잡는다. -->
-    <style name="Ye.Badge">
+    <style name="Ye.Badge" parent="">
         <item name="android:background">@drawable/ye_badge</item>
         <item name="android:textSize">12sp</item>
         <item name="android:fontFamily">sans-serif-medium</item>

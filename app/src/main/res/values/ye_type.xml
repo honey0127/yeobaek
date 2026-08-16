@@ -10,7 +10,7 @@
 -->
 <resources>
 
-    <style name="Ye.Text">
+    <style name="Ye.Text" parent="">
         <item name="android:textColor">@color/ye_on_surface</item>
         <item name="android:fontFamily">sans-serif</item>
     </style>

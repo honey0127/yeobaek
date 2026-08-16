@@ -378,14 +378,18 @@ class YeobaekHomeActivity : AppCompatActivity(), OnMapReadyCallback {
                     quietOnly && all.isNotEmpty() -> "이 지역엔 지금 한적한 곳이 없어요"
                     else -> "이 지역엔 등록된 명소가 없어요"
                 }
+                recoHeader.setOnClickListener(null)
                 recoAdapter.submit(fresh)
                 if (!isPlaceInfoShown()) recoPanel.visibility = View.VISIBLE
                 renderNearbyMarkers(fresh)
                 if (showHeat) heat?.render(fresh) else heat?.clear()
                 loadReports()
             } catch (e: Exception) {
-                // 추천은 부가 기능 — 실패 시 조용히 숨김
-                recoPanel.visibility = View.GONE
+                // 서버 요청 자체가 실패한 것 — 데이터가 없는 것과 구분해 재시도를 안내한다.
+                recoAdapter.submit(emptyList())
+                recoHeader.text = getString(R.string.home_reco_error)
+                recoHeader.setOnClickListener { refreshReco() }
+                if (!isPlaceInfoShown()) recoPanel.visibility = View.VISIBLE
             }
         }
     }
