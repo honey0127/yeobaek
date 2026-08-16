@@ -148,18 +148,6 @@
                     app:chipIconVisible="true" />
 
                 <com.google.android.material.chip.Chip
-                    android:id="@+id/chip_legend"
-                    style="@style/Ye.Chip.Filter"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:checkable="true"
-                    android:checked="true"
-                    android:text="@string/home_filter_legend"
-                    app:checkedIconVisible="false"
-                    app:chipIcon="@drawable/ic_ye_layers"
-                    app:chipIconVisible="true" />
-
-                <com.google.android.material.chip.Chip
                     android:id="@+id/chip_report"
                     style="@style/Ye.Chip"
                     android:layout_width="wrap_content"
@@ -170,7 +158,7 @@
             </com.google.android.material.chip.ChipGroup>
         </HorizontalScrollView>
 
-        <!-- 이 지역 추천(지도를 옮기면 나타난다) -->
+        <!-- 지도 상태 배너 — 결과가 비었거나 서버에 못 붙었을 때만 한 줄로 뜬다 -->
         <LinearLayout
             android:id="@+id/reco_panel"
             android:layout_width="match_parent"
@@ -195,8 +183,8 @@
                     style="@style/Ye.Text.LabelSmall"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/home_reco_default"
-                    android:textColor="@color/ye_on_primary_container" />
+                    android:textColor="@color/ye_on_primary_container"
+                    tools:text="@string/home_reco_error" />
 
                 <ImageButton
                     android:id="@+id/reco_close"
@@ -208,16 +196,6 @@
                     android:src="@drawable/ic_ye_close"
                     app:tint="@color/ye_on_primary_container" />
             </LinearLayout>
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/reco_list"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/ye_space_xs"
-                android:clipToPadding="false"
-                android:orientation="horizontal"
-                android:paddingHorizontal="@dimen/ye_gutter"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
         </LinearLayout>
     </LinearLayout>
 

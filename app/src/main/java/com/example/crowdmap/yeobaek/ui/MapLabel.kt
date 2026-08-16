@@ -8,6 +8,7 @@ import android.graphics.Path
 import android.graphics.RectF
 import android.graphics.Typeface
 import android.util.DisplayMetrics
+import android.util.LruCache
 import kotlin.math.max
 
 /**
@@ -29,6 +30,23 @@ object MapLabel {
     /** 그려진 라벨 + 지도 좌표에 맞출 앵커(꼬리 끝). */
     data class Label(val bitmap: Bitmap, val anchorX: Float, val anchorY: Float)
 
+    private const val CACHE_BYTES = 3 * 1024 * 1024   // 3MB — 라벨 수백 장이 들어간다
+
+    /**
+     * 그려 둔 라벨 캐시.
+     *
+     * 지도를 옮길 때마다 주변 명소 라벨을 전부 다시 그리는데, 한 장에 Bitmap 하나와
+     * Paint 몇 개를 새로 만드는 일이라 24개쯤 되면 그 프레임이 눈에 띄게 밀린다.
+     * 같은 이름·같은 색이면 결과 비트맵도 같으므로 캐시해서 재사용한다.
+     * (지도를 되돌려 왔을 때 특히 이득이 크다.)
+     *
+     * 키에 색과 density 가 들어가므로 다크 모드 전환처럼 팔레트가 바뀌는 경우는
+     * 자연히 다른 항목이 된다 — 따로 비울 필요가 없다.
+     */
+    private val cache = object : LruCache<String, Label>(CACHE_BYTES) {
+        override fun sizeOf(key: String, value: Label) = value.bitmap.byteCount
+    }
+
     /**
      * @param fillColor 칩 배경색(혼잡 레벨 색 또는 브랜드 색)
      * @param emphasize 담은 장소처럼 강조할 때 true — 글자·칩을 조금 키운다
@@ -38,6 +56,17 @@ object MapLabel {
         title: String,
         fillColor: Int,
         emphasize: Boolean = false,
+    ): Label {
+        val key = "${shorten(title)}|$fillColor|$emphasize|${dm.density}"
+        cache.get(key)?.let { if (!it.bitmap.isRecycled) return it }
+        return draw(dm, title, fillColor, emphasize).also { cache.put(key, it) }
+    }
+
+    private fun draw(
+        dm: DisplayMetrics,
+        title: String,
+        fillColor: Int,
+        emphasize: Boolean,
     ): Label {
         val d = dm.density
         val text = shorten(title)

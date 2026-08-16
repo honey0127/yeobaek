@@ -22,9 +22,7 @@
     <string name="home_search_cd">장소 검색 열기</string>
     <string name="home_eco_cd">내 여백 열기 — 에코 포인트·스탬프·저장한 코스</string>
     <string name="home_filter_quiet">한적한 곳만</string>
-    <string name="home_filter_legend">혼잡 색</string>
     <string name="home_action_report">제보</string>
-    <string name="home_reco_default">이 지역 추천 · 코스에 넣어볼까요?</string>
     <string name="home_reco_error">서버에 연결할 수 없어요 · 다시 시도</string>
     <string name="home_reco_close_cd">추천 닫기</string>
     <string name="home_legend_title">지금 혼잡도</string>

@@ -17,8 +17,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.example.crowdmap.R
 import com.example.crowdmap.yeobaek.data.AdhocRequest
 import com.example.crowdmap.yeobaek.data.Congestion
@@ -55,6 +53,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
+import kotlin.math.abs
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -109,7 +108,6 @@ class YeobaekHomeActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var sheetBehavior: BottomSheetBehavior<View>
 
     private lateinit var recoPanel: View
-    private lateinit var recoAdapter: RecoAdapter
     private var recoJob: Job? = null
 
     private val selectedMarkers = HashMap<Long, Marker>()      // 담긴 장소(브랜드 칩)
@@ -127,9 +125,13 @@ class YeobaekHomeActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var placeInfoBehavior: BottomSheetBehavior<View>
     private val reportMarkers = ArrayList<Marker>()
 
-    private var heat: HeatOverlay? = null   // 혼잡 농도 원(라벨 칩 아래에 깔린다)
     private var quietOnly = false           // '한적한 곳만' 필터
-    private var showHeat = true             // '혼잡 색' 토글
+
+    /** 마지막으로 서버에 물어본 지도 상태 — 조금 움직인 정도로는 다시 안 부른다. */
+    private var lastFetchCenter: LatLng? = null
+    private var lastFetchZoom = Float.NaN
+    /** 마지막으로 지도에 그린 결과. 같은 내용이면 마커를 다시 만들지 않는다. */
+    private var lastRendered: List<PlaceResult> = emptyList()
 
     /** 제스처 바/내비바 높이(px). 시트 peek 높이와 지도 하단 패딩에 더해진다. */
     private var navBarInset = 0
@@ -218,15 +220,8 @@ class YeobaekHomeActivity : AppCompatActivity(), OnMapReadyCallback {
         // 지금 보고 있는 지도 중심을 기준으로 코스 플래너를 연다.
         findViewById<MaterialButton>(R.id.btn_district).setOnClickListener { openAreaPlanner() }
 
-        // 지역 추천 패널
+        // 지도 상태 배너 — 평소엔 숨어 있고, 알려줄 일이 있을 때만 한 줄로 뜬다.
         recoPanel = findViewById(R.id.reco_panel)
-        recoAdapter = RecoAdapter { place -> addFromReco(place) }
-        findViewById<RecyclerView>(R.id.reco_list).apply {
-            layoutManager = LinearLayoutManager(
-                this@YeobaekHomeActivity, LinearLayoutManager.HORIZONTAL, false
-            )
-            adapter = recoAdapter
-        }
         findViewById<View>(R.id.reco_close).setOnClickListener { recoPanel.visibility = View.GONE }
 
         // 장소 정보 시트 — 탭/검색했을 때만 아래에서 올라온다.
@@ -254,15 +249,7 @@ class YeobaekHomeActivity : AppCompatActivity(), OnMapReadyCallback {
         findViewById<Chip>(R.id.chip_quiet_only).setOnCheckedChangeListener { view, checked ->
             view.tick()
             quietOnly = checked
-            refreshReco()
-        }
-
-        // 혼잡 농도 원 표시 토글 — 원이 지도를 덮는 게 싫은 사람을 위해.
-        findViewById<Chip>(R.id.chip_legend).setOnCheckedChangeListener { view, checked ->
-            view.tick()
-            showHeat = checked
-            findViewById<View>(R.id.heat_legend).showIf(checked)
-            if (!checked) heat?.clear() else refreshReco()
+            refreshReco(force = true)
         }
 
         val modeGroup = findViewById<MaterialButtonToggleGroup>(R.id.mode_group)
@@ -291,7 +278,6 @@ class YeobaekHomeActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
-        heat = HeatOverlay(googleMap)
         // 다크 모드에서는 지도도 야간 스타일로 — 밝은 지도 위 어두운 UI 는 눈이 부시다.
         val night = (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
             Configuration.UI_MODE_NIGHT_YES
@@ -358,40 +344,73 @@ class YeobaekHomeActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    /** 현재 지도 중심 주변 명소를 추천 패널에 채운다(디바운스). */
-    private fun refreshReco() {
+    /**
+     * 현재 지도 중심 주변 명소를 지도 라벨로 표시한다(디바운스).
+     *
+     * 카메라가 멈출 때마다 호출되므로 아낄 수 있는 건 최대한 아낀다:
+     * 조금 움직인 정도면 서버를 다시 부르지 않고([hasMovedEnough]), 결과가 지난번과
+     * 같으면 마커도 다시 만들지 않는다. 라벨 비트맵은 [MapLabel] 이 캐시한다.
+     */
+    private fun refreshReco(force: Boolean = false) {
         val gmap = map ?: return
         val center = gmap.cameraPosition.target
+        val zoom = gmap.cameraPosition.zoom
         val radius = radiusKmFromMap(gmap)
+        if (!force && !hasMovedEnough(center, zoom, radius)) return
         recoJob?.cancel()
         recoJob = lifecycleScope.launch {
             delay(450)   // 카메라가 멈춘 뒤에만 요청(스팸 방지)
             try {
-                // 히트맵: 주변 명소 + 현재 혼잡 레벨(핀 색) + 한적함 지수
+                // 히트맵: 주변 명소 + 현재 혼잡 레벨(라벨 색) + 한적함 지수
                 val res = YeobaekClient.api.heatmap(center.latitude, center.longitude, radius)
+                lastFetchCenter = center
+                lastFetchZoom = zoom
                 val all = res.results.filter { !selectedStops.containsKey(it.contentId) }
                 // '한적한 곳만' — 레벨을 모르는 곳은 한적하다고 단정할 수 없으니 함께 감춘다.
                 val fresh = if (quietOnly) all.filter { Congestion.isQuiet(it.level) } else all
-                // 빈 지역에서 아무 표시도 없으면 고장처럼 보인다 — 왜 비었는지 알려준다.
-                recoHeader.text = when {
-                    fresh.isNotEmpty() -> getString(R.string.home_reco_default)
-                    quietOnly && all.isNotEmpty() -> "이 지역엔 지금 한적한 곳이 없어요"
-                    else -> "이 지역엔 등록된 명소가 없어요"
+                // 평소엔 배너를 띄우지 않는다. 지도에 라벨이 떠 있으면 그게 곧 결과다.
+                // 비어 있을 때만 왜 비었는지 한 줄로 알려준다(고장으로 오해하지 않게).
+                if (fresh.isEmpty()) {
+                    showBanner(
+                        if (quietOnly && all.isNotEmpty()) "이 지역엔 지금 한적한 곳이 없어요"
+                        else "이 지역엔 등록된 명소가 없어요"
+                    )
+                } else {
+                    recoPanel.visibility = View.GONE
                 }
-                recoHeader.setOnClickListener(null)
-                recoAdapter.submit(fresh)
-                if (!isPlaceInfoShown()) recoPanel.visibility = View.VISIBLE
                 renderNearbyMarkers(fresh)
-                if (showHeat) heat?.render(fresh) else heat?.clear()
                 loadReports()
             } catch (e: Exception) {
                 // 서버 요청 자체가 실패한 것 — 데이터가 없는 것과 구분해 재시도를 안내한다.
-                recoAdapter.submit(emptyList())
-                recoHeader.text = getString(R.string.home_reco_error)
-                recoHeader.setOnClickListener { refreshReco() }
-                if (!isPlaceInfoShown()) recoPanel.visibility = View.VISIBLE
+                showBanner(getString(R.string.home_reco_error)) { refreshReco(force = true) }
             }
         }
+    }
+
+    /** 상태 배너 한 줄. [onTap] 을 주면 눌러서 다시 시도할 수 있다. */
+    private fun showBanner(text: String, onTap: (() -> Unit)? = null) {
+        recoHeader.text = text
+        if (onTap == null) {
+            recoHeader.setOnClickListener(null)
+            recoHeader.isClickable = false
+        } else {
+            recoHeader.setOnClickListener { onTap() }
+        }
+        if (!isPlaceInfoShown()) recoPanel.visibility = View.VISIBLE
+    }
+
+    /**
+     * 다시 불러올 만큼 지도가 움직였는지.
+     *
+     * 손가락을 뗄 때마다 카메라가 미세하게 흔들려도 onCameraIdle 이 오는데, 그때마다
+     * 요청하고 마커를 다시 그리면 그게 곧 버벅임이다. 보이는 반경의 25% 이상
+     * 이동했거나 줌이 반 단계 이상 바뀐 경우에만 새로 부른다.
+     */
+    private fun hasMovedEnough(center: LatLng, zoom: Float, radiusKm: Double): Boolean {
+        val prev = lastFetchCenter ?: return true
+        if (lastFetchZoom.isNaN() || abs(zoom - lastFetchZoom) >= 0.5f) return true
+        val moved = haversineKm(prev.latitude, prev.longitude, center.latitude, center.longitude)
+        return moved >= radiusKm * 0.25
     }
 
     /**
@@ -403,6 +422,12 @@ class YeobaekHomeActivity : AppCompatActivity(), OnMapReadyCallback {
      */
     private fun renderNearbyMarkers(list: List<PlaceResult>) {
         val gmap = map ?: return
+        // 내용이 지난번과 같으면 그대로 둔다 — 마커를 지웠다 다시 만드는 게 제일 비싸다.
+        // (겹침 검사는 화면 좌표 기준이라 줌이 바뀌면 다시 해야 하는데, 그때는
+        //  hasMovedEnough 가 이미 통과시켜 새 목록이 들어온다.)
+        // 빈 목록은 항상 처리한다 — 지워야 할 마커가 남아 있을 수 있다.
+        if (list.isNotEmpty() && nearbyMarkers.isNotEmpty() && sameAsRendered(list)) return
+        lastRendered = list
         nearbyMarkers.keys.forEach { it.remove() }
         nearbyMarkers.clear()
 
@@ -438,7 +463,15 @@ class YeobaekHomeActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    private fun addFromReco(place: PlaceResult) {
+    /** 같은 장소가 같은 혼잡 레벨로 들어왔는지 — 마커를 다시 만들지 판단하는 기준. */
+    private fun sameAsRendered(list: List<PlaceResult>): Boolean {
+        if (list.size != lastRendered.size) return false
+        return list.zip(lastRendered).all { (a, b) ->
+            a.contentId == b.contentId && a.level == b.level
+        }
+    }
+
+    private fun addPlaceToCourse(place: PlaceResult) {
         // DB 명소(content_id>0)는 바로 담고, 어드혹(0)은 서버에 즉석 등록 후 담는다.
         if (place.contentId > 0) {
             addStop(
@@ -522,7 +555,7 @@ class YeobaekHomeActivity : AppCompatActivity(), OnMapReadyCallback {
         val already = selectedStops.containsKey(place.contentId)
         infoAdd.setText(if (already) R.string.place_added else R.string.place_add)
         infoAdd.isEnabled = !already
-        infoAdd.setOnClickListener { addFromReco(place); hidePlaceInfo() }
+        infoAdd.setOnClickListener { addPlaceToCourse(place); hidePlaceInfo() }
 
         // 찜·오프피크·미시분산은 DB 명소(content_id>0)에서만 의미가 있다.
         val isDb = place.contentId > 0
@@ -600,7 +633,12 @@ class YeobaekHomeActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    /** 미시적 분산 — 도보권 더 한적한 대안을 추천 카루셀에 채운다. */
+    /**
+     * 미시적 분산 — 도보권의 더 한적한 대안을 **지도에 직접** 표시한다.
+     *
+     * 예전엔 카루셀에 채웠지만, 지도에 라벨이 이미 떠 있는데 아래에 같은 목록을 또
+     * 깔면 화면만 복잡해진다. 대신 대안만 남겨 그리고 배너로 무엇을 보고 있는지 알린다.
+     */
     private fun showDisperse(place: PlaceResult) {
         lifecycleScope.launch {
             try {
@@ -610,12 +648,11 @@ class YeobaekHomeActivity : AppCompatActivity(), OnMapReadyCallback {
                     Snackbar.make(root, "근처에 더 한적한 대안이 없어요", Snackbar.LENGTH_SHORT).show()
                     return@launch
                 }
-                recoHeader.text = "‘${place.title}’ 근처 더 한적한 곳"
-                recoAdapter.submit(fresh)
-                renderNearbyMarkers(fresh)
-                if (showHeat) heat?.render(fresh)
                 hidePlaceInfo()
-                recoPanel.visibility = View.VISIBLE
+                // 대안만 그린 상태를 다음 카메라 이동이 덮어쓰게 둔다(임시 표시).
+                lastRendered = emptyList()
+                renderNearbyMarkers(fresh)
+                showBanner("‘${MapLabel.shorten(place.title)}’ 근처 더 한적한 곳 ${fresh.size}곳")
             } catch (e: Exception) {
                 Snackbar.make(root, "대안 조회 실패", Snackbar.LENGTH_SHORT).show()
             }
@@ -763,7 +800,7 @@ class YeobaekHomeActivity : AppCompatActivity(), OnMapReadyCallback {
         addSelectedMarker(id, stop)
         fitCameraToSelected()
         refreshChips()
-        refreshReco()   // 담은 장소는 주변 추천/핀에서 제외
+        refreshReco(force = true)   // 담은 장소는 지도 라벨에서 제외
         root.tick()
         val stamped = id > 0 && StampStore.stamp(this, id, stop.title)
         Snackbar.make(
@@ -778,14 +815,14 @@ class YeobaekHomeActivity : AppCompatActivity(), OnMapReadyCallback {
         val removed = selectedStops.remove(id) ?: return
         selectedMarkers.remove(id)?.remove()
         refreshChips()
-        refreshReco()
+        refreshReco(force = true)
         // 칩의 ✕ 는 작아서 잘못 누르기 쉽다 — 되돌릴 방법을 반드시 준다.
         Snackbar.make(root, "‘${removed.title}’ 뺐어요", Snackbar.LENGTH_LONG)
             .setAction("되돌리기") {
                 selectedStops[id] = removed
                 addSelectedMarker(id, removed)
                 refreshChips()
-                refreshReco()
+                refreshReco(force = true)
             }
             .show()
     }
