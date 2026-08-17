@@ -183,12 +183,31 @@ def insert_adhoc_place(title: str, lat: float, lng: float,
 
 def nearby_places(lat: float, lng: float, radius_km: float = 3.0,
                   limit: int = 12) -> list[dict]:
-    """좌표 반경 내 장소를 가까운 순으로. 지도 이동 시 '이 지역 추천'에 사용.
-    데이터가 소규모(수백 건)라 전체 스캔 후 haversine 정렬로 충분하다."""
+    """좌표 반경 내 장소를 가까운 순으로. 지도 이동 시 지도 라벨/추천에 사용.
+
+    한때는 '수백 건이라 전체 스캔으로 충분'했지만 전국 수집 후 7천 건이 넘어가면서,
+    지도를 옮길 때마다 전 행을 읽어 파이썬에서 haversine 을 7천 번 도는 비용이
+    그대로 응답 지연이 됐다. 그래서 SQL 에서 위경도 사각형으로 먼저 걸러낸 뒤
+    남은 것만 정확한 거리로 계산한다(사각형은 원을 포함하므로 결과는 같다).
+    """
+    # 위도 1도 ≈ 111km. 경도 1도는 극에 가까울수록 짧아지므로 cos 로 보정한다.
+    #
+    # 이때 cos 은 **중심 위도가 아니라 사각형에서 극에 가장 가까운 위도**로 잡아야 한다.
+    # 중심 위도로 잡으면 원의 위·아래 끝 근처가 사각형 밖으로 밀려 결과가 빠진다
+    # (반경 12km 무작위 대조에서 실제로 걸렸다). 사각형은 원보다 커도 무방하다 —
+    # 아래에서 정확한 haversine 으로 다시 거르기 때문이다.
+    dlat = radius_km / 111.0
+    worst_lat = min(abs(lat) + dlat, 89.9)
+    cos_lat = math.cos(math.radians(worst_lat))
+    # 극지방에서 0으로 나누지 않도록 하한을 둔다(국내에선 걸릴 일 없지만 안전하게).
+    dlng = radius_km / max(111.0 * cos_lat, 1e-6)
     conn = _connect()
     try:
         rows = conn.execute(
-            "SELECT * FROM places WHERE mapx IS NOT NULL AND mapy IS NOT NULL"
+            "SELECT * FROM places"
+            " WHERE mapx IS NOT NULL AND mapy IS NOT NULL"
+            "   AND mapy BETWEEN ? AND ? AND mapx BETWEEN ? AND ?",
+            (lat - dlat, lat + dlat, lng - dlng, lng + dlng),
         ).fetchall()
     finally:
         conn.close()
@@ -198,9 +217,12 @@ def nearby_places(lat: float, lng: float, radius_km: float = 3.0,
         if d <= radius_km:
             p = _row_to_place(r)
             p["dist_km"] = round(d, 2)
-            out.append(p)
-    out.sort(key=lambda p: p["dist_km"])
-    return out[:limit]
+            out.append((d, p))
+    # 정렬은 반올림 전 거리로 한다. 표시용 dist_km(2자리)로 정렬하면 10m 차이가
+    # 같은 값이 되어 순서가 행 읽는 순서에 좌우된다(인덱스 유무로도 바뀐다).
+    # content_id 를 뒤에 둬 완전한 동점에서도 순서가 항상 같게 한다.
+    out.sort(key=lambda t: (t[0], t[1]["content_id"]))
+    return [p for _, p in out[:limit]]
 
 
 def search_places(q: str, limit: int = 20) -> list[dict]:

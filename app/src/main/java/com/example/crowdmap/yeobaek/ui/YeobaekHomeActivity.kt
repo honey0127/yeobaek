@@ -54,6 +54,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
 import kotlin.math.abs
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -373,13 +374,23 @@ class YeobaekHomeActivity : AppCompatActivity(), OnMapReadyCallback {
                 if (fresh.isEmpty()) {
                     showBanner(
                         if (quietOnly && all.isNotEmpty()) "이 지역엔 지금 한적한 곳이 없어요"
-                        else "이 지역엔 등록된 명소가 없어요"
+                        // 수집 데이터에 없는 지역이어도 길게 눌러 직접 담을 수 있다(어드혹).
+                        // 길게 누르기는 발견하기 어려운 제스처라 비었을 때 알려준다.
+                        else "이 지역엔 등록된 명소가 없어요 · 지도를 길게 눌러 추가"
                     )
                 } else {
                     recoPanel.visibility = View.GONE
                 }
                 renderNearbyMarkers(fresh)
                 loadReports()
+            } catch (e: CancellationException) {
+                // 다음 요청이 이 요청을 취소한 것 — 실패가 아니다.
+                //
+                // 취소는 CancellationException 으로 오는데 이것도 Exception 이라,
+                // 아래 catch 가 함께 삼키면 '서버에 연결할 수 없어요' 가 떠 버린다.
+                // 확대/축소처럼 카메라가 연달아 멈추는 동안 매번 앞 요청이 취소되므로
+                // 배너가 켜졌다 꺼졌다 하며 접속이 끊긴 것처럼 보였다. 그대로 흘려보낸다.
+                throw e
             } catch (e: Exception) {
                 // 서버 요청 자체가 실패한 것 — 데이터가 없는 것과 구분해 재시도를 안내한다.
                 showBanner(getString(R.string.home_reco_error)) { refreshReco(force = true) }

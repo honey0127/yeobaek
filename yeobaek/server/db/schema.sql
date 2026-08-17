@@ -14,6 +14,10 @@ CREATE TABLE IF NOT EXISTS places (
   updated_at    TEXT
 );
 
+-- 지도 이동마다 도는 반경 조회(nearby_places)가 쓰는 위경도 사각형 필터용.
+-- 전국 수집 후 places 가 7천 행을 넘어가면서 전체 스캔이 그대로 응답 지연이 됐다.
+CREATE INDEX IF NOT EXISTS idx_places_latlng ON places(mapy, mapx);
+
 -- 장소 → 가장 가까운 서울 예보지점 (결정 C, 사전계산)
 CREATE TABLE IF NOT EXISTS place_area_map (
   content_id       INTEGER PRIMARY KEY REFERENCES places(content_id),
