@@ -27,7 +27,10 @@ data class PlanStop(
     @SerializedName("content_id") val contentId: Long,
     val title: String,
     val arrival: String,                                   // "HH:MM"
-    @SerializedName("forecast_level") val forecastLevel: Int, // 1~4
+    // null = 이 지점은 혼잡 예보/집중률이 없다. '보통'으로 채우지 않는다.
+    @SerializedName("forecast_level") val forecastLevel: Int? = null,
+    // "seoul_realtime"(시간대별) | "tats_daily"(날짜 단위) | null
+    @SerializedName("level_source") val levelSource: String? = null,
     @SerializedName("substituted_from") val substitutedFrom: Long? = null,
     val lat: Double? = null,
     val lng: Double? = null,
@@ -62,7 +65,7 @@ data class Twin(
     @SerializedName("content_id") val contentId: Long,
     val title: String,
     val similarity: Double,
-    @SerializedName("forecast_level") val forecastLevel: Int,
+    @SerializedName("forecast_level") val forecastLevel: Int? = null,
     @SerializedName("dist_km") val distKm: Double,
 )
 
@@ -261,7 +264,8 @@ object Congestion {
         else -> R.color.ye_lv_unknown_container
     }
 
-    fun isHigh(level: Int): Boolean = level >= 3
+    /** 레벨을 모르면(null) 붐빈다고 단정하지 않는다 — isQuiet 과 대칭. */
+    fun isHigh(level: Int?): Boolean = level != null && level >= 3
     /** 구글맵 마커 색조(0~360). 여유=초록 … 붐빔=빨강. 레벨 없으면 브랜드 그린. */
     fun hue(level: Int?): Float = when (level) {
         1 -> 140f; 2 -> 48f; 3 -> 25f; 4 -> 8f; else -> 153f

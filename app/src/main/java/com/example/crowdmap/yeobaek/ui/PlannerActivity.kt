@@ -211,7 +211,7 @@ class PlannerActivity : AppCompatActivity() {
             currentPlan?.yeobaekIndex?.let { append("여백 지수 $it\n") }
             append("\n")
             stops.forEachIndexed { i, s ->
-                append("${i + 1}. ${s.arrival}  ${s.title}  (${Congestion.label(s.forecastLevel)})\n")
+                append("${i + 1}. ${s.arrival}  ${s.title}  (${Congestion.labelOrUnknown(s.forecastLevel)})\n")
             }
         }
         startActivity(

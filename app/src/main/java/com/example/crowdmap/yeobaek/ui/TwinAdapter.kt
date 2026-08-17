@@ -40,7 +40,7 @@ class TwinAdapter(
         val sim = (t.similarity * 100).toInt().coerceIn(0, 100)
         h.meta.text = "감성 유사도 ${sim}% · %.1fkm".format(t.distKm)
 
-        h.badge.text = Congestion.label(t.forecastLevel)
+        h.badge.text = Congestion.labelOrUnknown(t.forecastLevel)
         h.badge.backgroundTintList = ColorStateList.valueOf(
             ContextCompat.getColor(ctx, Congestion.containerRes(t.forecastLevel))
         )

@@ -45,9 +45,15 @@ def cat_label(code: Optional[str]) -> Optional[str]:
     return None
 
 
-def _congestion_diff_pct(source_level: int, alt_level: int) -> int:
+def _congestion_diff_pct(source_level: Optional[int], alt_level: Optional[int]) -> int:
     """원본 대비 대안지의 혼잡도 감소율(%). level 은 1~4.
-    ratio = level/4 기준. 대안이 더 혼잡하면 음수가 될 수 있어 0 하한."""
+    ratio = level/4 기준. 대안이 더 혼잡하면 음수가 될 수 있어 0 하한.
+
+    한쪽이라도 예보가 없으면(None) 0 을 돌려준다 — 카드가 절감 수치를 주장하지
+    않고 '감성이 유사한 대안' 문구로만 나가게 하기 위해서다. 측정하지 않은 값으로
+    퍼센트를 만들어 보여주는 것이 이 서비스가 가장 피해야 할 일이다."""
+    if source_level is None or alt_level is None:
+        return 0
     s = max(1, source_level) / 4.0
     a = max(0, alt_level) / 4.0
     if s <= 0:
@@ -71,14 +77,16 @@ def _shared_category(source_cat: Optional[str], alt_cat: Optional[str]) -> Optio
 
 
 def compute_grounded_facts(source: dict, alt: dict,
-                           source_level: int, alt_level: int) -> dict:
-    """카드에 넣을 '검증된 사실'을 코드가 계산."""
+                           source_level: Optional[int],
+                           alt_level: Optional[int]) -> dict:
+    """카드에 넣을 '검증된 사실'을 코드가 계산. 레벨은 없을 수 있다(None)."""
     code = _shared_category(source.get("cat"), alt.get("cat"))
     return {
         "congestion_diff_pct": _congestion_diff_pct(source_level, alt_level),
         "shared_category": cat_label(code) or code,   # 라벨 우선(부록 B), 없으면 코드
-        "source_level_label": LEVEL_LABELS.get(source_level, "보통"),
-        "alt_level_label": LEVEL_LABELS.get(alt_level, "보통"),
+        # 모르는 레벨을 '보통'으로 적지 않는다 — 지도 라벨의 회색 표기와 같은 규칙.
+        "source_level_label": LEVEL_LABELS.get(source_level, "정보 없음"),
+        "alt_level_label": LEVEL_LABELS.get(alt_level, "정보 없음"),
     }
 
 
@@ -92,6 +100,12 @@ def _template_body(source: dict, alt: dict, facts: dict) -> str:
             f"대신 {alt['title']}은(는) '{facts['alt_level_label']}'로,{cat_clause} "
             f"예상 혼잡도가 약 {diff}% 낮습니다. 같은 감성, 다른 시간·장소로 여백을 즐겨보세요."
         )
+    # 예보가 없으면 '혼잡도가 비슷하다'고 말할 근거도 없다 — 유사성만 이야기한다.
+    if "정보 없음" in (facts["source_level_label"], facts["alt_level_label"]):
+        return (
+            f"{alt['title']}은(는){cat_clause} {source['title']}과(와) 감성적으로 유사한 대안지입니다. "
+            f"이 지역은 혼잡 예보가 제공되지 않아 혼잡도 비교는 넣지 않았습니다."
+        )
     return (
         f"{alt['title']}은(는){cat_clause} {source['title']}과(와) 감성적으로 유사한 대안지입니다. "
         f"도착 시점 예보 기준 혼잡도는 비슷하니, 동선·취향에 맞춰 선택하세요."
@@ -103,7 +117,7 @@ def _headline(source: dict, alt: dict) -> str:
 
 
 def build_card(source: dict, alt: dict,
-               source_level: int, alt_level: int) -> dict:
+               source_level: Optional[int], alt_level: Optional[int]) -> dict:
     """설득 카드 생성. 부록 B 계약 형식."""
     facts = compute_grounded_facts(source, alt, source_level, alt_level)
     headline = _headline(source, alt)

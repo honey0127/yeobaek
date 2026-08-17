@@ -76,6 +76,27 @@ flyctl secrets set SEOUL_API_KEY=... TOURAPI_KEY=... TATS_API_KEY=...
 키가 없어도 서버는 뜨지만(중립값 폴백) 실제 혼잡 예보를 보여주려면 최소 `SEOUL_API_KEY`
 는 필요하다.
 
+## 3-1) 볼륨 만들기 (최초 1회, **배포 전에 반드시**)
+
+`fly.toml` 에 `[mounts]` 가 켜져 있다. **볼륨이 없으면 배포가 실패한다.**
+
+```bash
+flyctl volumes create yeobaek_data --size 1 --region nrt
+```
+
+볼륨은 머신 1대에만 붙는다. `flyctl deploy` 가 고가용성용으로 머신 2대를 만들려
+하면 두 번째 머신이 붙을 볼륨이 없어 실패하므로, 머신을 1대로 맞춘다:
+
+```bash
+flyctl scale count 1
+```
+
+(무료 한도에서도 1대면 충분하다. 2대를 굳이 쓰려면 볼륨도 2개 만들어야 한다.)
+
+이 볼륨이 있어야 여행자 제보와 `forecast_cache` 관측치가 재배포에도 살아남는다.
+D+1 역사 평균은 표본이 쌓여야 동작하므로, 볼륨 없이 운영하면 그 기능은 사실상
+꺼져 있는 것과 같다.
+
 ## 4) 배포
 
 ```bash

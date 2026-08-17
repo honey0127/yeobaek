@@ -94,7 +94,7 @@ class PlanAdapter(
         h.arrival.text = s.arrival
         h.title.text = s.title
 
-        h.badge.text = Congestion.label(s.forecastLevel)
+        h.badge.text = Congestion.labelOrUnknown(s.forecastLevel)
         h.badge.backgroundTintList = ColorStateList.valueOf(
             ContextCompat.getColor(ctx, Congestion.containerRes(s.forecastLevel))
         )
@@ -113,6 +113,7 @@ class PlanAdapter(
             h.sub.visibility = View.GONE
         }
 
+        // 예보가 없으면(null) 대안 제안도 하지 않는다 — 붐빈다는 근거가 없다.
         if (Congestion.isHigh(s.forecastLevel)) {
             h.altBtn.visibility = View.VISIBLE
             h.altBtn.setOnClickListener { onAlt(s) }

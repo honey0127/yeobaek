@@ -5,12 +5,10 @@
 """
 from __future__ import annotations
 
-import datetime
-
 from fastapi import APIRouter, HTTPException, Query
 
 from ..db import repository
-from ..services.tats import TatsClient, TatsError
+from ..services.tats_levels import levels_for_sigungu as _tats_levels, match_level as _match_level
 from .places import _to_result, quiet_score
 
 router = APIRouter(prefix="/api/v1", tags=["districts"])
@@ -52,47 +50,8 @@ DISTRICTS = [
     {"key": "seogwipo",  "name": "서귀포·중문", "region": "제주", "lat": 33.2496, "lng": 126.5600, "desc": "폭포와 리조트의 남쪽 해안","area_cd": "50", "signgu_cd": "50130"},
 ]
 
-# 집중률(signgu, 오늘) 결과 캐시 — 하루 1회 호출로 트래픽 절약(일일 1000 제한).
-_tats_cache: dict[str, dict[str, int]] = {}
-
-
-def _norm(s: str) -> str:
-    return "".join((s or "").split()).replace("(", "").replace(")", "")
-
-
-def _tats_levels(area_cd: str, signgu_cd: str) -> dict[str, int]:
-    """(오늘 기준) 시군구 관광지명 → 혼잡 레벨. 실패/키없음 시 빈 dict."""
-    today = datetime.date.today().strftime("%Y%m%d")
-    ck = f"{signgu_cd}:{today}"
-    if ck in _tats_cache:
-        return _tats_cache[ck]
-    levels: dict[str, int] = {}
-    try:
-        rows = TatsClient().list_by_sigungu(area_cd, signgu_cd)
-        for r in rows:
-            if r["ymd"] != today:
-                continue
-            levels[_norm(r["name"])] = r["level"]
-        if not levels:   # 오늘자가 없으면 가장 이른 날짜로
-            for r in rows:
-                levels.setdefault(_norm(r["name"]), r["level"])
-    except (TatsError, Exception):
-        levels = {}
-    _tats_cache[ck] = levels
-    return levels
-
-
-def _match_level(levels: dict[str, int], title: str):
-    """관광지명 정규화 매칭(정확 → 부분포함)."""
-    if not levels or not title:
-        return None
-    key = _norm(title)
-    if key in levels:
-        return levels[key]
-    for name, lvl in levels.items():
-        if name and (name in key or key in name):
-            return lvl
-    return None
+# 집중률 조회·이름 매칭은 services/tats_levels.py 로 옮겼다(지도 경로와 공용).
+# DISTRICTS 는 그 모듈이 좌표→시군구 해석의 기준점으로도 재사용한다.
 
 
 @router.get("/districts")

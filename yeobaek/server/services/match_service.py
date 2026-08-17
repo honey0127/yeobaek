@@ -57,15 +57,22 @@ def find_twins(source: dict, radius_km: float, top_k: int) -> list[dict]:
     return out
 
 
-def forecast_level(area_name: Optional[str], arrival_unix: int) -> int:
-    """area 예보지점 T시점 혼잡 레벨(1~4). 예보지점 없으면 중립(2).
-    엔진이 있으면 C++ 경로, 없으면 py_forecast 폴백(services/py_forecast.py)."""
+def forecast_level(area_name: Optional[str], arrival_unix: int) -> Optional[int]:
+    """area 예보지점 T시점 혼잡 레벨(1~4). **모르면 None** — 중립(2)으로 채우지 않는다.
+
+    예전에는 예보지점이 없을 때 2(보통)를 돌려줬다. 그러면 서울 예보권 밖 장소가
+    지도에서는 회색('정보 없음')인데 코스에서는 '보통' 배지를 다는 모순이 생기고,
+    여백 지수의 혼잡 점수에도 측정하지 않은 66.7점이 그대로 가산됐다.
+    모르는 것은 None 으로 올리고, 표시·집계는 호출측이 아는 값만 쓰도록 한다.
+
+    엔진이 있으면 C++ 경로, 없으면 py_forecast 폴백(services/py_forecast.py).
+    """
     if not area_name:
-        return 2
+        return None
     try:
         if engine_state.available:
             return int(engine_state.forecast(area_name, arrival_unix).level)
         from . import py_forecast
         return py_forecast.forecast_level(area_name, arrival_unix)
     except Exception:
-        return 2
+        return None

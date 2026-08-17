@@ -24,12 +24,17 @@ primary_region = "nrt"   # 도쿄 — 한국에서 가장 가까운 Fly 리전(�
     method = "GET"
     path = "/health"
 
-# 재배포에도 여행자 제보·예보 관측을 유지하려면 볼륨을 붙인다.
-# 볼륨을 먼저 만든 뒤(아래 3줄 주석 해제) 배포할 것 — 없는 볼륨을 참조하면 배포가 실패한다.
+# 재배포에도 여행자 제보·예보 관측(forecast_cache)을 유지한다.
+#
+# ⚠ 이 볼륨이 **없으면 배포가 실패한다.** 최초 1회 반드시 먼저 만들 것:
 #   flyctl volumes create yeobaek_data --size 1 --region nrt
-# [mounts]
-#   source = "yeobaek_data"
-#   destination = "/data"
+#
+# 볼륨이 없던 동안에는 /data 가 컨테이너 수명만큼만 살아 있어서, D+1 역사 평균의
+# 표본(forecast_cache)이 재배포마다 0으로 돌아갔다. 표본이 쌓여야 정확해지는
+# 구조라 이건 기능이 꺼져 있던 것이나 마찬가지였다.
+[mounts]
+  source = "yeobaek_data"
+  destination = "/data"
 
 [[vm]]
   memory = "512mb"

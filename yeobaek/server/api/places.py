@@ -12,6 +12,7 @@ from ..engine import engine_state
 from ..services.rag import cat_label, LEVEL_LABELS
 from ..services.match_service import forecast_level as _forecast_level
 from ..services import py_forecast
+from ..services import tats_levels
 
 
 def _get_forecast(area_name: str, arrival_unix: int):
@@ -71,33 +72,45 @@ def nearby(lat: float = Query(..., description="지도 중심 위도"),
 def heatmap(lat: float = Query(...), lng: float = Query(...),
             radius_km: float = Query(3.0, ge=0.2, le=20.0),
             limit: int = Query(24, ge=1, le=40)) -> dict:
-    """주변 명소 + 각 명소의 현재 혼잡 레벨(1~4)·한적함 지수. 지도 히트맵/핀 색용.
-    서울 예보권 밖(예보지점 미매핑)은 level=null → 앱이 중립 색으로 표시."""
+    """주변 명소 + 각 명소의 현재 혼잡 레벨(1~4)·한적함 지수. 지도 라벨 색용.
+
+    서울 예보권은 실시간 도시데이터(시간대별), 그 밖은 전국 집중률(날짜 단위)로
+    채운다. 어느 쪽도 없으면 level=null → 앱이 회색('정보 없음')으로 표시한다.
+    각 항목의 level_source 로 어느 트랙에서 온 값인지 구분할 수 있다."""
     rows = repository.nearby_places(lat, lng, radius_km, limit)
-    now = int(time.time())
-    amap = repository.get_area_map([r["content_id"] for r in rows])
-    out = []
-    for r in rows:
-        area = amap.get(r["content_id"], (None, None))[0]
-        # area 없으면 예보권 밖(None=중립 회색). area 있으면 엔진/파이썬 폴백 중 가능한 쪽으로 조회.
-        level = _forecast_level(area, now) if area else None
-        item = _to_result(r)
-        item["level"] = level
-        item["quiet_score"] = quiet_score(level)
-        out.append(item)
-    return {"results": out}
+    return {"results": _with_congestion(rows, int(time.time()))}
+
+
+def _level_for(row: dict, area: str | None, now: int) -> tuple[int | None, str | None]:
+    """이 장소의 현재 혼잡 레벨과 그 출처.
+
+    ① 서울 실시간 도시데이터(시간대별 예보) — 예보지점이 매핑된 장소에만 있다.
+    ② 없으면 전국 관광지 집중률(날짜 단위) — 서울 밖을 덮는 2차 트랙.
+    ③ 둘 다 없으면 None(회색). 없는 값을 추정해 채우지 않는다.
+
+    ①이 항상 우선이다. 시간대별 예보가 날짜 단위 집중률보다 정밀하기 때문이다.
+    """
+    if area:
+        level = _forecast_level(area, now)
+        if level:
+            return level, "seoul_realtime"
+    level = tats_levels.level_for_place(row.get("title"), row.get("lat"), row.get("lng"))
+    if level:
+        return level, "tats_daily"
+    return None, None
 
 
 def _with_congestion(rows: list[dict], now: int) -> list[dict]:
-    """장소 목록에 현재 혼잡 레벨 + 한적함 지수를 붙인다."""
+    """장소 목록에 현재 혼잡 레벨 + 한적함 지수 + 출처를 붙인다."""
     amap = repository.get_area_map([r["content_id"] for r in rows])
     out = []
     for r in rows:
         area = amap.get(r["content_id"], (None, None))[0]
-        level = _forecast_level(area, now) if area else None
+        level, source = _level_for(r, area, now)
         item = _to_result(r)
         item["level"] = level
         item["quiet_score"] = quiet_score(level)
+        item["level_source"] = source
         out.append(item)
     return out
 
