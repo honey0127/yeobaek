@@ -66,3 +66,46 @@ def historical_level(area_name: str, arrival_unix: int) -> int | None:
     if len(levels) < MIN_SAMPLES:
         return None
     return round(sum(levels) / len(levels))
+
+
+# 예보 슬롯은 1시간 단위(C++ ForecastProvider 의 bucket_seconds=3600 과 같다).
+# 도착 시각에서 이 절반 이내의 슬롯을 "그 도착을 덮는 예보"로 본다.
+_BUCKET_SEC = 3600
+
+
+def cached_forecast(area_name: str, arrival_unix: int, max_age_sec: int):
+    """최근에 받아 둔 **실측** 예보가 있으면 돌려준다(외부 API 호출을 건너뛰기 위해).
+
+    forecast_cache 는 원래 D+1 역사 평균의 표본 창고였는데, 같은 테이블이 사실
+    "언제 받아서(fetched_at) 어느 슬롯(fcst_time)의 값이 무엇이었는지"를 다 갖고
+    있으므로 짧은 TTL 의 **영속 캐시**로도 그대로 쓸 수 있다.
+
+    엔진의 인메모리 LRU 캐시는 프로세스가 죽으면 사라진다. Fly 는
+    min_machines_running=0 이라 트래픽이 없으면 머신이 통째로 꺼지고, 그때마다
+    121개 예보지점을 처음부터 다시 받아야 했다. 이 캐시는 볼륨에 남으므로
+    콜드스타트를 넘어 살아남는다 — 공공 API 일일 한도를 지키는 핵심 장치다.
+
+    반환: (level, ppltn_min, ppltn_max, fcst_unix) 또는 None(캐시 미스).
+    """
+    if not area_name or max_age_sec <= 0:
+        return None
+    arrival = int(arrival_unix)
+    half = _BUCKET_SEC // 2
+    fresh_since = int(time.time()) - int(max_age_sec)
+    con = _connect()
+    try:
+        row = con.execute(
+            "SELECT fcst_time, congest_lvl, ppltn_min, ppltn_max FROM forecast_cache"
+            " WHERE seoul_area_name = ?"
+            "   AND CAST(fetched_at AS INTEGER) >= ?"
+            "   AND CAST(fcst_time AS INTEGER) BETWEEN ? AND ?"
+            " ORDER BY ABS(CAST(fcst_time AS INTEGER) - ?) LIMIT 1",
+            (area_name, fresh_since, arrival - half, arrival + half, arrival),
+        ).fetchone()
+    except sqlite3.Error:
+        return None
+    finally:
+        con.close()
+    if not row or not row[1]:
+        return None
+    return int(row[1]), row[2], row[3], int(row[0])

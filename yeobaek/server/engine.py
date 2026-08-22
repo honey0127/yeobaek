@@ -20,6 +20,21 @@ from .services import history
 
 
 @dataclass
+class CachedForecast:
+    """영속 캐시(forecast_cache)에서 되살린 **실측** 예보.
+
+    과거 평균이 아니라 실제로 받았던 값이므로 is_historical=False 다 —
+    "왜 이 시간?" 화면의 추정값 표시가 잘못 붙지 않게 하려면 이 구분이 필요하다.
+    """
+    level: int
+    fcst_unix: int
+    ppltn_min: int = 0
+    ppltn_max: int = 0
+    valid: bool = True
+    is_historical: bool = False
+
+
+@dataclass
 class HistoricalForecast:
     """D+1 폴백용 스탠드인 — pybind ForecastResult 와 같은 필드 모양(level/ppltn_min/max/valid).
     실측이 아니라 과거 같은 시간대 관측 평균이므로 fcst_unix=0(실측 아님을 표시)."""
@@ -71,7 +86,9 @@ class EngineState:
             return
         # 예보 클라이언트/프로바이더/스케줄러
         self.client = ye.SeoulCityDataForecastClient(settings.SEOUL_API_KEY)
-        self.provider = ye.ForecastProvider(self.client)
+        # ok_ttl_sec: 예보는 시간 단위로 갱신되므로 10분 TTL 은 불필요하게 짧았다.
+        self.provider = ye.ForecastProvider(
+            self.client, ok_ttl_sec=settings.FORECAST_MEM_TTL_SEC)
         self.scheduler = ye.Scheduler(
             self.provider, high_congestion_level=settings.HIGH_CONGESTION_LEVEL)
 
@@ -95,6 +112,15 @@ class EngineState:
         """도착시점 예보. 서울 API 의 예보창(~12h)을 벗어나 엔진이 아무것도 못 찾으면
         (D+1 등) 같은 지점·같은 시간대의 과거 관측 평균으로 대체한다(모듈2 보강).
         실측이 나오면 그 값을 forecast_cache 에 적재해 다음 D+1 폴백의 표본을 늘린다."""
+        # ① 볼륨에 남아 있는 최근 실측값이 있으면 외부 호출을 건너뛴다.
+        #    (엔진 인메모리 캐시는 콜드스타트마다 비므로 그 앞을 이걸로 막는다)
+        hit = history.cached_forecast(
+            area_name, int(arrival_unix), settings.FORECAST_DB_CACHE_SEC)
+        if hit is not None:
+            level, pmin, pmax, fcst_unix = hit
+            return CachedForecast(level=level, fcst_unix=fcst_unix,
+                                  ppltn_min=pmin or 0, ppltn_max=pmax or 0)
+
         fc = self.provider.get(area_name, int(arrival_unix))
         if fc.valid and fc.fcst_unix > 0:
             history.record(area_name, fc.level, fc.ppltn_min, fc.ppltn_max, fc.fcst_unix)

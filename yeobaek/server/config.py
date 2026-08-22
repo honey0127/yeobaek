@@ -21,6 +21,15 @@ class Settings:
     TOURAPI_KEY: str = _get("TOURAPI_KEY")               # 한국관광공사 TourAPI (필수 활용)
     # 전국 관광지 집중률 예측(한국관광공사 TatsCnctrRateService) — 전국 혼잡 소스
     TATS_API_KEY: str = _get("TATS_API_KEY")
+
+    # ── 공공 API 호출 절약 (개발계정 일일 한도 대응) ──
+    # 서울 예보지점은 121곳이고 예보는 시간 단위로 갱신된다. 10분 TTL 은 필요보다
+    # 훨씬 짧아 한도(개발계정 기준 일 1,000회)를 금방 소진시켰다.
+    #   인메모리 TTL 30분  → 최악 121 × 48 = 5,808회/일
+    #   + 볼륨 영속 캐시   → 콜드스타트로 캐시가 비는 일이 없어져 실사용은 훨씬 적다
+    FORECAST_MEM_TTL_SEC: int = int(_get("FORECAST_MEM_TTL_SEC", "1800"))
+    # forecast_cache(볼륨)에 남은 실측값을 재사용하는 기간. 프로세스가 죽어도 살아남는다.
+    FORECAST_DB_CACHE_SEC: int = int(_get("FORECAST_DB_CACHE_SEC", "1800"))
     TATS_ENDPOINT: str = _get(
         "TATS_ENDPOINT",
         "https://apis.data.go.kr/B551011/TatsCnctrRateService/tatsCnctrRatedList")

@@ -74,6 +74,16 @@ def forecast(area_name: str | None, arrival_unix: int) -> PyForecastResult:
     if cached and cached[1] > time.time():
         return cached[0]
 
+    # 프로세스 안 캐시가 비어 있어도(콜드스타트) 볼륨에 최근 실측값이 남아 있으면
+    # 그걸 쓴다 — 공공 API 일일 한도를 지키는 핵심 장치(engine.forecast 와 동일 정책).
+    hit = history.cached_forecast(area_name, int(arrival_unix),
+                                  settings.FORECAST_DB_CACHE_SEC)
+    if hit is not None:
+        level, pmin, pmax, _ = hit
+        result = PyForecastResult(level=level, ppltn_min=pmin or 0, ppltn_max=pmax or 0)
+        _CACHE[key] = (result, time.time() + _CACHE_TTL_OK)
+        return result
+
     row = _fetch_citydata(area_name)
     if row:
         fcst = row.get("FCST_PPLTN") or []
@@ -99,6 +109,13 @@ def forecast(area_name: str | None, arrival_unix: int) -> PyForecastResult:
                 ppltn_max=int(best.get("FCST_PPLTN_MAX") or 0),
             )
             _CACHE[key] = (result, time.time() + _CACHE_TTL_OK)
+            # 볼륨 캐시 + D+1 표본으로 적재 — 다음 콜드스타트가 이걸 재사용한다.
+            epoch_best = calendar.timegm(
+                (int(best["FCST_TIME"][0:4]), int(best["FCST_TIME"][5:7]),
+                 int(best["FCST_TIME"][8:10]), int(best["FCST_TIME"][11:13]),
+                 int(best["FCST_TIME"][14:16]), 0, 0, 0, 0)) - KST_OFFSET
+            history.record(area_name, result.level,
+                           result.ppltn_min, result.ppltn_max, epoch_best)
             return result
 
         realtime_label = row.get("AREA_CONGEST_LVL")
